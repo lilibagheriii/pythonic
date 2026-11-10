@@ -134,7 +134,7 @@ ol.steps > li > div { min-width: 0; display: grid; gap: 6px; }
       <div class="key"><kbd>l</kbd><span><b>learn</b>Keeps your chapter logs: exercises, notes, questions, parked items</span></div>
       <div class="key"><kbd>s</kbd><span><b>sync</b>Saves your work and swaps updates with your mentor on GitHub</span></div>
     </div>
-    <p class="aside">The shortcuts come from step 3 below. Without them, type <code>bin/learn</code> and <code>bin/sync</code> from the repo folder. They do the same thing.</p>
+    <p class="aside">You install the shortcuts in step 1 below, before anything else, so every later step can use them.</p>
   </header>
 
   <section aria-labelledby="h-setup">
@@ -143,15 +143,16 @@ ol.steps > li > div { min-width: 0; display: grid; gap: 6px; }
       <p>Run these from inside the <code>python-learning-path</code> folder.</p>
     </div>
     <ol class="steps">
+      <li><span class="what">Install the shortcuts first, then open a new terminal <small>(if a letter is taken, it tells you how to pick another)</small></span>
+        <div><div class="cmd"><pre>bin/install-aliases</pre><button class="copy" type="button">Copy</button></div>
+        <p class="aside">This is the only time you type a <code>bin/</code> path. From the new terminal on, <code>l</code> and <code>s</code> work from any folder.</p></div></li>
       <li><span class="what">Connect the repo to your private GitHub repository <small>(create it empty on github.com first)</small></span>
         <div><div class="cmd"><pre class="multi"><span class="ps">$ </span>git remote add origin https://github.com/&lt;you&gt;/python-learning-path.git
-<span class="ps">$ </span>bin/sync</pre><button class="copy" type="button">Copy</button></div></div></li>
+<span class="ps">$ </span>s</pre><button class="copy" type="button">Copy</button></div></div></li>
       <li><span class="what">Make a virtual environment for tools like pytest</span>
         <div><div class="cmd"><pre class="multi"><span class="ps">$ </span>python3 -m venv .venv
 <span class="ps">$ </span>source .venv/bin/activate
 <span class="ps">$ </span>python3 -m pip install -r requirements.txt</pre><button class="copy" type="button">Copy</button></div></div></li>
-      <li><span class="what">Install the shortcuts, then open a new terminal <small>(if a letter is taken, it tells you how to pick another)</small></span>
-        <div><div class="cmd"><pre>bin/install-aliases</pre><button class="copy" type="button">Copy</button></div></div></li>
       <li><span class="what">Start your first chapter</span>
         <div><div class="cmd"><pre>l start pcc-00</pre><button class="copy" type="button">Copy</button></div></div></li>
     </ol>
