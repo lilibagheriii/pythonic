@@ -1,0 +1,329 @@
+<title>Learning Path Quickstart</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column. Setup and the daily loop are numbered (they are real sequences); everything else is reference. */
+:root {
+  --bg: #f3f5f6;
+  --surface: #ffffff;
+  --term: #e8eef0;        /* command panels */
+  --ink: #13202a;
+  --ink-2: #4a5964;
+  --ink-3: #7a8893;
+  --rule: #d9e0e4;
+  --accent: #0e6b63;      /* deep teal */
+  --mark: #c98a12;        /* prompt marker, used sparingly */
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1518; --surface: #151d21; --term: #1b262b; --ink: #e9eff2; --ink-2: #aebbc3;
+    --ink-3: #7f8d96; --rule: #26333a; --accent: #4cb5a9; --mark: #e0a83a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1518; --surface: #151d21; --term: #1b262b; --ink: #e9eff2; --ink-2: #aebbc3;
+  --ink-3: #7f8d96; --rule: #26333a; --accent: #4cb5a9; --mark: #e0a83a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.6;
+}
+.wrap {
+  max-width: 860px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 48px 72px;
+  display: grid; gap: 48px;
+}
+h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; letter-spacing: -0.015em; line-height: 1.15; }
+h1 { font-size: clamp(32px, 5vw, 46px); }
+h2 { font-size: 24px; }
+h3 { font-size: 17px; }
+p { margin: 0; max-width: 66ch; }
+a { color: var(--accent); }
+code { font-family: var(--font-mono); font-size: 0.88em; background: var(--term); padding: 1px 5px; border-radius: 4px; }
+.eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; color: var(--accent); }
+
+header { display: grid; gap: 14px; }
+.lede { font-size: 19px; color: var(--ink-2); }
+.keys { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+.key {
+  display: flex; align-items: center; gap: 12px; background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 10px; padding: 10px 16px 10px 10px; min-width: 0;
+}
+.key kbd {
+  font-family: var(--font-mono); font-size: 22px; font-weight: 500; width: 42px; height: 42px;
+  display: grid; place-items: center; border-radius: 8px; background: var(--accent); color: var(--surface);
+}
+.key span { font-size: 14px; color: var(--ink-2); line-height: 1.4; }
+.key b { display: block; color: var(--ink); font-weight: 600; }
+.aside { font-size: 14px; color: var(--ink-3); }
+
+section { display: grid; gap: 18px; }
+.sec-head { display: grid; gap: 6px; }
+.sec-head p { color: var(--ink-2); }
+
+/* command panel */
+.cmd {
+  display: flex; align-items: flex-start; gap: 10px; background: var(--term); border-radius: 8px;
+  padding: 10px 10px 10px 14px; font-family: var(--font-mono); font-size: 14px; min-width: 0;
+}
+.cmd pre { margin: 0; flex: 1; min-width: 0; overflow-x: auto; white-space: pre; line-height: 1.55; font-family: inherit; }
+.cmd pre::before { content: "$ "; color: var(--mark); }
+.cmd .multi::before { content: none; }
+.cmd .ps { color: var(--mark); }
+.copy {
+  flex: none; font: 500 12px var(--font-body); color: var(--ink-2); background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 6px; padding: 3px 9px; cursor: pointer;
+}
+.copy:hover { color: var(--ink); border-color: var(--ink-3); }
+.copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* numbered sequences */
+ol.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: step; }
+ol.steps > li { counter-increment: step; display: grid; grid-template-columns: 32px 1fr; gap: 6px 14px; }
+ol.steps > li::before {
+  content: counter(step); grid-row: span 2; width: 28px; height: 28px; border-radius: 50%;
+  border: 1.5px solid var(--accent); color: var(--accent); display: grid; place-items: center;
+  font: 600 13px var(--font-body); margin-top: 2px;
+}
+ol.steps .what { font-weight: 500; }
+ol.steps .what small { font-weight: 400; color: var(--ink-2); font-size: 14px; }
+ol.steps > li > div { min-width: 0; display: grid; gap: 6px; }
+
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.tile { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 18px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.tile p { font-size: 15px; color: var(--ink-2); }
+
+/* LOG.md anatomy */
+.log { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; overflow-x: auto; }
+.log table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+.log td { padding: 9px 16px; border-top: 1px solid var(--rule); vertical-align: top; }
+.log tr:first-child td { border-top: none; }
+.log td:first-child { font-family: var(--font-mono); white-space: nowrap; color: var(--ink); width: 34%; }
+.log td:nth-child(2) { color: var(--ink-2); }
+.log td:last-child { font-family: var(--font-mono); color: var(--accent); white-space: nowrap; text-align: right; }
+
+/* cheat sheet */
+.sheet { overflow-x: auto; background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; }
+.sheet table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+.sheet th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); padding: 12px 16px 6px; }
+.sheet td { padding: 8px 16px; border-top: 1px solid var(--rule); vertical-align: top; }
+.sheet td:first-child { font-family: var(--font-mono); white-space: nowrap; }
+.sheet td:last-child { color: var(--ink-2); }
+.sheet tr.group td { font-family: var(--font-body); font-weight: 600; color: var(--ink); background: var(--term); font-size: 13px; }
+
+.callout { border-left: 3px solid var(--mark); padding: 4px 0 4px 16px; display: grid; gap: 8px; }
+.callout p { color: var(--ink-2); }
+@media (prefers-reduced-motion: no-preference) { .copy { transition: color .15s, border-color .15s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Python learning path · student guide</div>
+    <h1>Learning Path Quickstart</h1>
+    <p class="lede">You run your own learning. Two shortcuts do the bookkeeping, so you can spend your time writing code.</p>
+    <div class="keys">
+      <div class="key"><kbd>l</kbd><span><b>learn</b>Keeps your chapter logs: exercises, notes, questions, parked items</span></div>
+      <div class="key"><kbd>s</kbd><span><b>sync</b>Saves your work and swaps updates with your mentor on GitHub</span></div>
+    </div>
+    <p class="aside">The shortcuts come from step 3 below. Without them, type <code>bin/learn</code> and <code>bin/sync</code> from the repo folder. They do the same thing.</p>
+  </header>
+
+  <section aria-labelledby="h-setup">
+    <div class="sec-head">
+      <h2 id="h-setup">Once, on day one</h2>
+      <p>Run these from inside the <code>python-learning-path</code> folder.</p>
+    </div>
+    <ol class="steps">
+      <li><span class="what">Connect the repo to your private GitHub repository <small>(create it empty on github.com first)</small></span>
+        <div><div class="cmd"><pre class="multi"><span class="ps">$ </span>git remote add origin https://github.com/&lt;you&gt;/python-learning-path.git
+<span class="ps">$ </span>bin/sync</pre><button class="copy" type="button">Copy</button></div></div></li>
+      <li><span class="what">Make a virtual environment for tools like pytest</span>
+        <div><div class="cmd"><pre class="multi"><span class="ps">$ </span>python3 -m venv .venv
+<span class="ps">$ </span>source .venv/bin/activate
+<span class="ps">$ </span>python3 -m pip install -r requirements.txt</pre><button class="copy" type="button">Copy</button></div></div></li>
+      <li><span class="what">Install the shortcuts, then open a new terminal <small>(if a letter is taken, it tells you how to pick another)</small></span>
+        <div><div class="cmd"><pre>bin/install-aliases</pre><button class="copy" type="button">Copy</button></div></div></li>
+      <li><span class="what">Start your first chapter</span>
+        <div><div class="cmd"><pre>l start pcc-00</pre><button class="copy" type="button">Copy</button></div></div></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="h-loop">
+    <div class="sec-head">
+      <h2 id="h-loop">Every study session</h2>
+      <p>The same loop, every time. Steps 3 to 5 repeat for each exercise in the chapter.</p>
+    </div>
+    <ol class="steps">
+      <li><span class="what">Get your mentor's latest feedback</span>
+        <div><div class="cmd"><pre>s</pre><button class="copy" type="button">Copy</button></div></div></li>
+      <li><span class="what">Start today's entry in the session log</span>
+        <div><div class="cmd"><pre>l session --hours 2</pre><button class="copy" type="button">Copy</button></div></div></li>
+      <li><span class="what">Create a file for the next exercise <small>(number and title from the book)</small></span>
+        <div><div class="cmd"><pre>l ex 2-1 "Simple Message"</pre><button class="copy" type="button">Copy</button></div>
+        <p class="aside">Creates <code>exercises/ex_2_1_simple_message.py</code> and adds it to your log's checklist.</p></div></li>
+      <li><span class="what">Write the code, run it, fix it <small>(in VS Code, or <code>python3 &lt;file&gt;</code>)</small></span>
+        <div><p class="aside">Type the book's examples out by hand. Copy-pasting skips the part where you learn.</p></div></li>
+      <li><span class="what">Tick it off when it works</span>
+        <div><div class="cmd"><pre>l done 2-1</pre><button class="copy" type="button">Copy</button></div></div></li>
+      <li><span class="what">Before you stop, open the chapter's <code>LOG.md</code> and fill in today's entry</span>
+        <div><p class="aside">Did, Learned, Confusing, Next time. One line each is enough.</p></div></li>
+      <li><span class="what">Save and share</span>
+        <div><div class="cmd"><pre>s</pre><button class="copy" type="button">Copy</button></div></div></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="h-way">
+    <div class="sec-head">
+      <h2 id="h-way">When something gets in the way</h2>
+    </div>
+    <div class="grid3">
+      <div class="tile">
+        <h3>Stuck</h3>
+        <p>Try for 30 minutes first. Then ask, and say what you tried, so your mentor can see where it went wrong.</p>
+        <div class="cmd"><pre>l ask "Why does 0.1 + 0.2 print 0.30000000000000004? Tried round()"</pre><button class="copy" type="button">Copy</button></div>
+      </div>
+      <div class="tile">
+        <h3>Need to move on</h3>
+        <p>Park it so it isn't forgotten, keep going, and come back later. <code>l parked</code> lists everything you've parked.</p>
+        <div class="cmd"><pre>l park "2-8: redo after reading about string methods"</pre><button class="copy" type="button">Copy</button></div>
+      </div>
+      <div class="tile">
+        <h3>Learned something</h3>
+        <p>Write it down while it's fresh: a gotcha, an aha moment, a useful link.</p>
+        <div class="cmd"><pre>l note "f-strings need the f before the quote"</pre><button class="copy" type="button">Copy</button></div>
+      </div>
+    </div>
+    <p class="aside">Close them later with <code>l unpark 1</code> and <code>l answered 1 "what I learned"</code>. The number comes from <code>l parked</code> or <code>l questions</code>.</p>
+  </section>
+
+  <section aria-labelledby="h-where">
+    <div class="sec-head">
+      <h2 id="h-where">Where you are</h2>
+      <p>Show <code>l status</code> at the start of every check-in with your mentor.</p>
+    </div>
+    <div class="cmd"><pre class="multi"><span class="ps">$ </span>l status 0
+
+Phase 0 · Foundations (sprint: Tue Nov 10 – Sat Nov 14, 8h/day)
+   ✓ pcc-00   Setup and Git                     complete     ex 3/3
+   ✓ pcc-01   Getting Started                   complete     ex 2/2
+ ▶ … pcc-02   Variables and Simple Data Types   in-progress  ex 4/9  parked 1  questions 1
+   · pcc-03   Introducing Lists                 not-started</pre></div>
+    <p class="aside">Example output. ▶ is your current chapter. ✓ complete, … in progress, · not started, – skipped.</p>
+  </section>
+
+  <section aria-labelledby="h-finish">
+    <div class="sec-head">
+      <h2 id="h-finish">Finishing a chapter</h2>
+    </div>
+    <ol class="steps">
+      <li><span class="what">Fill in the Retro at the bottom of the chapter's <code>LOG.md</code></span>
+        <div><p class="aside">What clicked, what's still fuzzy, and how you'd explain the main idea to a beginner.</p></div></li>
+      <li><span class="what">Mark it complete</span>
+        <div><div class="cmd"><pre>l complete</pre><button class="copy" type="button">Copy</button></div>
+        <p class="aside">If exercises, parked items or the retro are unfinished, it lists them and stops. Finish them, or agree with your mentor to move on and use <code>l complete --force</code>.</p></div></li>
+      <li><span class="what">Start the chapter it suggests</span>
+        <div><div class="cmd"><pre>l start pcc-03</pre><button class="copy" type="button">Copy</button></div></div></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="h-log">
+    <div class="sec-head">
+      <h2 id="h-log">What goes where in LOG.md</h2>
+      <p>Every chapter folder has one. The commands write into these sections for you, and you can edit any of them by hand. Leave the <code>## </code> headings and the <code>**Status:**</code> line as they are.</p>
+    </div>
+    <div class="log"><table>
+      <tr><td>**Status:** in-progress</td><td>Where the chapter stands</td><td>l start · l complete</td></tr>
+      <tr><td>## Goals</td><td>What you should be able to do at the end</td><td>you</td></tr>
+      <tr><td>## Exercises</td><td>A checklist that links to each exercise file</td><td>l ex · l done</td></tr>
+      <tr><td>## Session log</td><td>One dated entry per study session</td><td>l session</td></tr>
+      <tr><td>## Remarks</td><td>Gotchas, aha moments, links</td><td>l note</td></tr>
+      <tr><td>## Questions for mentor</td><td>Open questions, then the answers</td><td>l ask · l answered</td></tr>
+      <tr><td>## Parked</td><td>Unfinished things to come back to</td><td>l park · l unpark</td></tr>
+      <tr><td>## Mentor feedback</td><td>Written by your mentor; arrives with <code>s</code></td><td>mentor</td></tr>
+      <tr><td>## Retro</td><td>Your look back before completing</td><td>you</td></tr>
+    </table></div>
+  </section>
+
+  <section aria-labelledby="h-side">
+    <div class="sec-head">
+      <h2 id="h-side">Working on something beside your chapter</h2>
+      <p>Some logs run alongside the books, such as job search and algorithm practice. Add <code>-c</code> and the log's id to use any command on another log without switching.</p>
+    </div>
+    <div class="cmd"><pre class="multi"><span class="ps">$ </span>l ex 1 "Two Sum" -c add-algorithms
+<span class="ps">$ </span>l note "Applied: junior developer role, via referral" -c add-job-search</pre><button class="copy" type="button">Copy</button></div>
+  </section>
+
+  <section aria-labelledby="h-sync">
+    <div class="callout">
+      <h3 id="h-sync">If <code>s</code> stops with a conflict</h3>
+      <p>That means you and your mentor changed the same lines of a code file. Nothing is lost, because <code>s</code> puts everything back the way it was and names the file. Run <code>s --keep-mine</code> to keep your version of those lines, or ask your mentor which one to keep. Edits to the same <code>LOG.md</code> never cause this. Both sets of lines are kept automatically.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-sheet">
+    <div class="sec-head">
+      <h2 id="h-sheet">All commands</h2>
+      <p>Commands that change a log use your current chapter unless you add <code>-c &lt;id&gt;</code>. Ids work without leading zeros, so <code>pcc-3</code> finds <code>pcc-03</code>.</p>
+    </div>
+    <div class="sheet"><table>
+      <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr class="group"><td colspan="2">Chapters</td></tr>
+        <tr><td>l status [phase]</td><td>Every chapter with its progress</td></tr>
+        <tr><td>l start &lt;id&gt;</td><td>Make a chapter current and mark it in progress</td></tr>
+        <tr><td>l complete [--force]</td><td>Finish the chapter, after checking for loose ends</td></tr>
+        <tr><td>l skip &lt;id&gt; [reason]</td><td>Skip a chapter, such as a project track you didn't pick</td></tr>
+        <tr class="group"><td colspan="2">Doing the work</td></tr>
+        <tr><td>l session [--hours N]</td><td>Add today's entry to the session log</td></tr>
+        <tr><td>l ex &lt;id&gt; [title]</td><td>Create an exercise file and add it to the checklist</td></tr>
+        <tr><td>l done &lt;id&gt;</td><td>Tick off an exercise</td></tr>
+        <tr><td>l note &lt;text&gt;</td><td>Add a remark</td></tr>
+        <tr class="group"><td colspan="2">Questions and parked items</td></tr>
+        <tr><td>l ask &lt;text&gt;</td><td>Ask your mentor something</td></tr>
+        <tr><td>l questions</td><td>List every unanswered question</td></tr>
+        <tr><td>l answered &lt;n&gt; [answer]</td><td>Close a question, in your own words</td></tr>
+        <tr><td>l park &lt;text&gt;</td><td>Set something aside to finish later</td></tr>
+        <tr><td>l parked</td><td>List everything still parked</td></tr>
+        <tr><td>l unpark &lt;n&gt; [note]</td><td>Mark a parked item done</td></tr>
+        <tr class="group"><td colspan="2">Saving and sharing</td></tr>
+        <tr><td>s [message]</td><td>Save, get your mentor's changes, share yours</td></tr>
+        <tr><td>s --keep-mine</td><td>Only after a conflict: keep your version of the clashing lines</td></tr>
+        <tr><td>bin/install-aliases [--remove]</td><td>Add or remove the <code>l</code> and <code>s</code> shortcuts</td></tr>
+      </tbody>
+    </table></div>
+    <p class="aside">Every command explains itself: <code>l -h</code>, <code>l ex -h</code>, <code>s --help</code>.</p>
+  </section>
+</div>
+
+<script>
+document.querySelectorAll(".copy").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const pre = btn.parentElement.querySelector("pre");
+    const text = pre.textContent.split("\n")
+      .filter(line => !pre.classList.contains("multi") || line.startsWith("$ "))
+      .map(line => line.replace(/^\$ /, ""))
+      .join("\n").trim();
+    const done = label => { btn.textContent = label; setTimeout(() => { btn.textContent = "Copy"; }, 1500); };
+    const fallback = () => {
+      const range = document.createRange();
+      range.selectNodeContents(pre);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      done("Selected");
+    };
+    try {
+      navigator.clipboard.writeText(text).then(() => done("Copied"), fallback);
+    } catch (e) { fallback(); }
+  });
+});
+</script>

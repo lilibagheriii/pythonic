@@ -2,6 +2,8 @@
 
 My path from first line of code to mid-level Python developer. Every chapter of every book has its own folder with a `LOG.md`, where I keep my exercises, session notes, remarks, questions for my mentor, and anything I've parked to finish later.
 
+**New here? Open [docs/intro.html](docs/intro.html) in a browser** for a one-page guide to setup, the daily loop and every command.
+
 **I drive. My mentor reviews, unblocks and signs off.** See [PLAN.md](PLAN.md) for the whole path and [MENTOR.md](MENTOR.md) for how my mentor works with this repo.
 
 ## First-time setup
