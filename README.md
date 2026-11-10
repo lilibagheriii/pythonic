@@ -67,7 +67,7 @@ Phase 1 has three project tracks and you pick two. Mark the one you skip with `b
 | `bin/learn unpark <n> [note]` | Mark parked item number *n* done |
 | `bin/learn complete [id] [--force]` | Mark a chapter complete |
 | `bin/learn skip <id> [reason]` | Mark a chapter skipped |
-| `bin/learn init` | Create folders and logs for anything new added to `curriculum.json` |
+| `bin/learn init` | Create the folder and `LOG.md` for anything new added to `curriculum.json` |
 | `bin/sync [message]` | Commit everything, pull mentor changes, push |
 | `bin/sync --pull` | Only pull, for example to read new mentor feedback |
 
@@ -84,13 +84,13 @@ python-learning-path/
 ├── phase-0-foundations/       Python Crash Course, Part I + mini project
 │   ├── pcc-00-setup-and-git/
 │   │   ├── LOG.md
-│   │   └── exercises/
+│   │   └── exercises/         appears with your first `bin/learn ex`
 │   ├── pcc-01-getting-started/
 │   ├── ...
 │   └── proj-mini-mini-project/
 │       ├── LOG.md
-│       ├── src/
-│       └── tests/
+│       ├── src/               appears with your first `bin/learn ex`
+│       └── tests/             make this yourself when you write tests
 ├── phase-1-build/             Python Crash Course, Part II + deployed app
 ├── phase-2-functions/         Composing Programs, CS 61A Hog, SQL + declarative refactor
 ├── phase-3-fluent/            Fluent Python + capstone

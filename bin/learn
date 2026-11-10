@@ -190,16 +190,16 @@ def counts(ch):
 # ---------------------------------------------------------------- commands
 
 def cmd_init(args):
-    """Create any missing chapter folders and LOG.md files from curriculum.json."""
+    """Create a folder and LOG.md for any chapter in curriculum.json that doesn't have one.
+
+    exercises/ and src/ folders are not created here. `bin/learn ex` makes them when the
+    first file goes in, so unused chapters don't fill the repo with empty folders.
+    """
     template = (TEMPLATE_DIR / "LOG.md").read_text(encoding="utf-8")
     created = 0
     for ch in load_chapters():
-        dirs = [ch.work_dir] + ([ch.dir / "tests"] if ch.kind == "project" else [])
-        for d in dirs:
-            d.mkdir(parents=True, exist_ok=True)
-            if not any(d.iterdir()):
-                (d / ".gitkeep").touch()
         if not ch.log.exists():
+            ch.dir.mkdir(parents=True, exist_ok=True)
             goals = ch.goals or ["Do every exercise in this reading", "Explain the main idea out loud to the mentor"]
             ch.write(fill(template, {
                 "id": ch.id,
@@ -229,7 +229,8 @@ def cmd_start(args):
     CURRENT_FILE.write_text(ch.id + "\n")
     print(f"▶ {ch.id} · {ch.title} is now your current chapter.")
     print(f"  Log:       {rel(ch.log)}")
-    print(f"  Exercises: {rel(ch.work_dir)}/")
+    later = "" if ch.work_dir.exists() else "  (created by your first `bin/learn ex`)"
+    print(f"  Exercises: {rel(ch.work_dir)}/{later}")
     print(f"  Reading:   {ch.ref}")
 
 
@@ -256,9 +257,6 @@ def cmd_ex(args):
     link = f"{ch.work_dir.name}/{name}"
     entry = f"- [ ] {ex_id}" + (f" — {title}" if title else "") + f" → [{name}]({link})"
     ch.write(append_entry(text, "exercises", entry))
-    gitkeep = ch.work_dir / ".gitkeep"
-    if gitkeep.exists():
-        gitkeep.unlink()
     print(f"created {rel(path)}")
     print(f"When it works: bin/learn done {ex_id}")
 
