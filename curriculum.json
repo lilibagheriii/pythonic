@@ -60,6 +60,7 @@
         {"id": "cp-4.2", "title": "Implicit Sequences", "ref": "Section 4.2 (iterators and generators)"},
         {"id": "cp-4.3", "title": "Declarative Programming", "ref": "Section 4.3 (SQL)"},
         {"id": "sqlbolt", "title": "SQL Practice", "ref": "SQLBolt lessons, then the same queries in SQLite", "book": "SQLBolt (sqlbolt.com)"},
+        {"id": "add-pandas", "title": "Python for Data Analysis", "ref": "Addition, months 3–5, only for the data analyst route (role 2). Chapters 4–10, then a real dataset.", "book": "Python for Data Analysis, 3rd ed. (Wes McKinney), free online", "goals": ["Load, clean, group and summarize a CSV or spreadsheet with pandas", "Work in a Jupyter notebook", "Done when: a notebook answers a real question about real data, with charts and a short written conclusion", "Skipping the data route? `bin/learn skip add-pandas`"]},
         {"id": "proj-declarative-refactor", "kind": "project", "title": "Declarative Refactor", "ref": "Phase 2 milestone", "goals": ["Rewrite one Phase 1 project with pure functions, comprehensions and generators instead of loops that change state", "Tests still pass", "Explain the before and after to the mentor"]}
       ]
     },
@@ -68,8 +69,10 @@
       "title": "Phase 3 · Write Python like an experienced developer (months 5–9)",
       "book": "Fluent Python, 2nd ed. (Luciano Ramalho)",
       "chapters": [
+        {"id": "add-job-search", "title": "Portfolio, Resume and Referrals", "ref": "Addition, from month 4 until the first developer job. One small task a week; runs alongside everything else.", "book": "No book: weekly tasks, plus a monthly mock interview with the mentor from month 7", "goals": ["Every project README explains what it does, why, and how to run it", "Resume puts projects first and education last", "LinkedIn and GitHub profiles up to date", "One meetup a month (log each one with `bin/learn note`)", "Ask for referrals; log each application with `bin/learn note`", "Monthly mock interview from month 7: one coding problem and one project walkthrough", "Done when: hired as a developer"]},
         {"id": "fp-01", "title": "The Python Data Model", "ref": "Chapter 1"},
         {"id": "fp-02", "title": "An Array of Sequences", "ref": "Chapter 2"},
+        {"id": "add-algorithms", "title": "Grokking Algorithms and Practice Problems", "ref": "Addition, months 5–10, alongside Fluent Python. The book, plus 2–3 practice problems a week (LeetCode or similar), easy first, then medium.", "book": "Grokking Algorithms, 2nd ed. (Aditya Bhargava)", "goals": ["Use lists, hash maps, stacks, queues, trees and graphs, and know when each fits", "Explain the Big-O of my own code", "Done when: I can solve an easy problem in ~20 minutes and a medium one in ~45, explaining my thinking out loud", "Log each practice problem with `bin/learn ex <site-id> \"<name>\"`"]},
         {"id": "fp-03", "title": "Dictionaries and Sets", "ref": "Chapter 3"},
         {"id": "fp-05", "title": "Data Class Builders", "ref": "Chapter 5"},
         {"id": "fp-07", "title": "Functions as First-Class Objects", "ref": "Chapter 7"},
@@ -79,6 +82,7 @@
         {"id": "fp-13", "title": "Interfaces, Protocols, and ABCs", "ref": "Chapter 13"},
         {"id": "fp-17", "title": "Iterators, Generators, and Classic Coroutines", "ref": "Chapter 17"},
         {"id": "fp-18", "title": "with, match, and else Blocks", "ref": "Chapter 18"},
+        {"id": "add-tools", "title": "Linux, Docker and HTTP", "ref": "Addition, months 6–9, used in the capstone. The Linux Command Line, Docker's getting-started tutorial, MDN's HTTP overview.", "book": "The Linux Command Line (William Shotts), free online; Docker docs; MDN Web Docs", "goals": ["Move around, search and read logs from the terminal without a file browser", "Package an app with a Dockerfile and docker compose", "Explain an HTTP request: method, URL, headers, status code, body", "Done when: the capstone runs from one `docker compose up`, and I can debug a failing request with curl and the logs"]},
         {"id": "proj-capstone", "kind": "project", "title": "Capstone", "ref": "Phase 3 milestone", "goals": ["Has a real user (ideally a tool for my job)", "Type hints checked with mypy", "Linting with ruff", "Tests with pytest", "Checks run on every push with GitHub Actions", "Uses a database"]}
       ]
     },

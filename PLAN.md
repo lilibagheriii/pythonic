@@ -32,11 +32,17 @@ If Friday runs long, move `pcc-11` to Saturday morning and give the mini project
 - `cs61a-hog`: the CS 61A Hog project
 - `cp-2.1` – `cp-2.5`, `cp-2.8` Efficiency, `cp-2.9` Recursive Objects
 - `cp-4.2` Implicit Sequences, `cp-4.3` Declarative Programming, `sqlbolt`
+- `add-pandas` (addition, data analyst route only): *Python for Data Analysis*. Skip it on the developer route.
 
 **Milestone `proj-declarative-refactor`:** rewrite a Phase 1 project in declarative style and explain the difference.
 
 ## Phase 3 · Write Python like an experienced developer (months 5–9)
 *Fluent Python*, 2nd ed.: `fp-01`, `fp-02`, `fp-03`, `fp-05`, `fp-07`, `fp-08`, `fp-09`, `fp-10`, `fp-13`, `fp-17`, `fp-18`.
+
+Additions for the job market, which run alongside the chapters:
+- `add-job-search`, from month 4 until hired: portfolio, résumé, meetups, referrals, and monthly mock interviews from month 7
+- `add-algorithms`, months 5–10: *Grokking Algorithms* plus 2–3 practice problems a week
+- `add-tools`, months 6–9: Linux command line, Docker, HTTP, all used in the capstone
 
 **Milestone `proj-capstone`:** a project with a real user, using mypy, ruff, pytest, GitHub Actions and a database.
 
