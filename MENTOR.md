@@ -5,7 +5,7 @@ The student drives. Your job is to review, unblock, and sign off at milestones, 
 ## Getting up to date
 
 ```bash
-git clone <student's repo> && cd python-learning-path
+git clone git@github.com:lilibagheriii/pythonic.git && cd pythonic
 bin/sync                 # later, to get the latest (and push any feedback you wrote)
 bin/learn status         # where they are, exercise counts, open parked items and questions
 bin/learn questions      # everything waiting on you

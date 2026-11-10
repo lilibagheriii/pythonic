@@ -140,15 +140,15 @@ ol.steps > li > div { min-width: 0; display: grid; gap: 6px; }
   <section aria-labelledby="h-setup">
     <div class="sec-head">
       <h2 id="h-setup">Once, on day one</h2>
-      <p>Run these from inside the <code>python-learning-path</code> folder.</p>
+      <p>You've already cloned the <code>pythonic</code> repo, and it's already connected to GitHub. Run these from inside the <code>pythonic</code> folder.</p>
     </div>
     <ol class="steps">
       <li><span class="what">Install the shortcuts first, then open a new terminal <small>(if a letter is taken, it tells you how to pick another)</small></span>
         <div><div class="cmd"><pre>bin/install-aliases</pre><button class="copy" type="button">Copy</button></div>
         <p class="aside">This is the only time you type a <code>bin/</code> path. From the new terminal on, <code>l</code> and <code>s</code> work from any folder.</p></div></li>
-      <li><span class="what">Connect the repo to your private GitHub repository <small>(create it empty on github.com first)</small></span>
-        <div><div class="cmd"><pre class="multi"><span class="ps">$ </span>git remote add origin https://github.com/&lt;you&gt;/python-learning-path.git
-<span class="ps">$ </span>s</pre><button class="copy" type="button">Copy</button></div></div></li>
+      <li><span class="what">Check the connection to GitHub <small>(it should end with “✓ In sync.”)</small></span>
+        <div><div class="cmd"><pre>s</pre><button class="copy" type="button">Copy</button></div>
+        <p class="aside">If it says you don't have access, ask your mentor to check your access to the repo on GitHub.</p></div></li>
       <li><span class="what">Make a virtual environment for tools like pytest</span>
         <div><div class="cmd"><pre class="multi"><span class="ps">$ </span>python3 -m venv .venv
 <span class="ps">$ </span>source .venv/bin/activate

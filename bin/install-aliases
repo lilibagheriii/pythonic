@@ -46,8 +46,8 @@ if [ -z "$rc" ]; then
   esac
 fi
 
-begin="# >>> python-learning-path aliases >>>"
-end="# <<< python-learning-path aliases <<<"
+begin="# >>> pythonic aliases >>>"
+end="# <<< pythonic aliases <<<"
 
 strip_block() {   # print $rc without our block
   awk -v b="$begin" -v e="$end" '$0==b{skip=1; next} $0==e{skip=0; next} !skip' "$rc"

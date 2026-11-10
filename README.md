@@ -8,25 +8,26 @@ My path from first line of code to mid-level Python developer. Every chapter of 
 
 ## First-time setup
 
+You've already cloned this repo (`pythonic`), and it's already connected to GitHub. Run everything below from inside the `pythonic` folder.
+
 1. Install Python 3 and VS Code (Phase 0, `pcc-00`, walks through this).
-2. **Install the shortcuts first**, so every step after this one can use them. From inside this folder:
+2. **Install the shortcuts first**, so every step after this one can use them:
    ```bash
    bin/install-aliases          # l = learn, s = sync
    ```
    Then **open a new terminal**. From now on `l` and `s` work from any folder. If a letter is already taken on your machine, the script says so. Pick others with `bin/install-aliases --learn j --sync y`. Undo with `bin/install-aliases --remove`, and re-run it if you move the repo.
-3. Create an empty **private** repository on GitHub (no README), then connect this folder to it:
+3. Check the connection to GitHub. This should end with "✓ In sync.":
    ```bash
-   git remote add origin https://github.com/<you>/python-learning-path.git
    s
    ```
-4. Add your mentor as a collaborator on GitHub (Settings → Collaborators).
-5. Make a virtual environment for tools like pytest:
+   If it says you don't have access, ask your mentor to check your access to the repo on GitHub.
+4. Make a virtual environment for tools like pytest:
    ```bash
    python3 -m venv .venv
    source .venv/bin/activate        # Windows: .venv\Scripts\activate
    python3 -m pip install -r requirements.txt
    ```
-6. Start your first chapter: `l start pcc-00`
+5. Start your first chapter: `l start pcc-00`
 
 On Windows, run everything from **Git Bash**. If `bin/install-aliases` or `bin/learn` won't run, use `py bin/learn ...` and `bash bin/sync` instead of the shortcuts.
 
@@ -85,8 +86,9 @@ Commands that change a log use your current chapter. Add `-c <id>` to target ano
 ## Layout
 
 ```
-python-learning-path/
+pythonic/
 ├── README.md  PLAN.md  MENTOR.md
+├── intro.html  career-roadmap.html
 ├── curriculum.json            every phase and chapter; `bin/learn init` builds folders from it
 ├── bin/learn  bin/sync         helper scripts
 ├── templates/                 LOG.md and exercise file templates
