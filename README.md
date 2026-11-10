@@ -20,7 +20,15 @@ My path from first line of code to mid-level Python developer. Every chapter of 
    python3 -m pip install -r requirements.txt
    ```
 
+5. Add one-letter shortcuts so the scripts work from any folder:
+   ```bash
+   bin/install-aliases          # l = bin/learn, s = bin/sync
+   ```
+   Open a new terminal, then `l status` and `s` work anywhere. If a letter is already taken on your machine, the script says so. Pick others with `bin/install-aliases --learn j --sync y`. Undo with `bin/install-aliases --remove`, and re-run it if you move the repo.
+
 On Windows, run the scripts from **Git Bash**, and use `py bin/learn ...` if `bin/learn` alone doesn't run.
+
+The examples below use the full `bin/learn` and `bin/sync`. With the shortcuts, `l` and `s` do exactly the same thing.
 
 ## The daily loop
 
@@ -67,6 +75,7 @@ Phase 1 has three project tracks and you pick two. Mark the one you skip with `b
 | `bin/learn unpark <n> [note]` | Mark parked item number *n* done |
 | `bin/learn complete [id] [--force]` | Mark a chapter complete |
 | `bin/learn skip <id> [reason]` | Mark a chapter skipped |
+| `bin/install-aliases [--learn x --sync y] [--remove]` | Add or remove the one-letter shortcuts |
 | `bin/learn init` | Create the folder and `LOG.md` for anything new added to `curriculum.json` |
 | `bin/sync [message]` | Commit everything, pull mentor changes, push. If you and your mentor both edited a `LOG.md`, both sets of lines are kept. |
 | `bin/sync --keep-mine` | Use this only if `bin/sync` says you both changed the same lines of a code file. Keeps your version of those lines. |

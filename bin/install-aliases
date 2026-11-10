@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+# install-aliases: add one-letter shortcuts so the helper scripts run from any folder.
+#
+#   bin/install-aliases             add  l = bin/learn  and  s = bin/sync
+#   bin/install-aliases --learn j --sync y
+#                                   pick other letters (if l or s are already taken)
+#   bin/install-aliases --rc FILE   write to FILE instead of your shell's startup file
+#   bin/install-aliases --remove    take the shortcuts out again
+#
+# The aliases point at this repo's absolute path. If you move or re-clone the repo,
+# run this again from the new copy. Running it twice is safe: it replaces its own block.
+set -euo pipefail
+
+repo="$(cd "$(dirname "$0")/.." && pwd -P)"
+learn_alias="l"
+sync_alias="s"
+rc=""
+remove=0
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --learn) learn_alias="${2:?--learn needs a letter}"; shift 2 ;;
+    --sync)  sync_alias="${2:?--sync needs a letter}";  shift 2 ;;
+    --rc)    rc="${2:?--rc needs a file}";              shift 2 ;;
+    --remove) remove=1; shift ;;
+    -h|--help) sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    *) echo "error: unknown option '$1' (see --help)" >&2; exit 1 ;;
+  esac
+done
+
+for name in "$learn_alias" "$sync_alias"; do
+  case "$name" in
+    *[!A-Za-z0-9_]*|"") echo "error: '$name' isn't a valid alias name (letters, digits, _)" >&2; exit 1 ;;
+  esac
+done
+if [ "$learn_alias" = "$sync_alias" ]; then
+  echo "error: learn and sync need different letters" >&2; exit 1
+fi
+
+# Pick the startup file for the user's login shell.
+if [ -z "$rc" ]; then
+  case "$(basename "${SHELL:-bash}")" in
+    zsh)  rc="$HOME/.zshrc" ;;
+    bash) if [ "$(uname)" = "Darwin" ]; then rc="$HOME/.bash_profile"; else rc="$HOME/.bashrc"; fi ;;
+    *)    echo "error: unsupported shell '${SHELL:-?}'. Use --rc to name your startup file." >&2; exit 1 ;;
+  esac
+fi
+
+begin="# >>> python-learning-path aliases >>>"
+end="# <<< python-learning-path aliases <<<"
+
+strip_block() {   # print $rc without our block
+  awk -v b="$begin" -v e="$end" '$0==b{skip=1; next} $0==e{skip=0; next} !skip' "$rc"
+}
+
+touch "$rc"
+had_block=0
+grep -qxF "$begin" "$rc" && had_block=1
+
+if [ "$remove" -eq 1 ]; then
+  if [ "$had_block" -eq 0 ]; then
+    echo "· No shortcuts found in $rc. Nothing to remove."
+    exit 0
+  fi
+  cp "$rc" "$rc.bak"
+  strip_block > "$rc.tmp" && mv "$rc.tmp" "$rc"
+  echo "✓ Removed the shortcuts from $rc (backup: $rc.bak)."
+  echo "  Open a new terminal for it to take effect."
+  exit 0
+fi
+
+# Warn about letters that already mean something.
+existing="$(strip_block)"
+for name in "$learn_alias" "$sync_alias"; do
+  if command -v "$name" >/dev/null 2>&1 || printf '%s\n' "$existing" | grep -qE "^[[:space:]]*alias[[:space:]]+$name="; then
+    echo "error: '$name' is already a command or alias on this machine." >&2
+    echo "       Pick other letters, e.g. bin/install-aliases --learn j --sync y" >&2
+    exit 1
+  fi
+done
+
+cp "$rc" "$rc.bak"
+{
+  strip_block
+  echo "$begin"
+  echo "alias $learn_alias='\"$repo/bin/learn\"'"
+  echo "alias $sync_alias='\"$repo/bin/sync\"'"
+  echo "$end"
+} > "$rc.tmp"
+mv "$rc.tmp" "$rc"
+
+if [ "$had_block" -eq 1 ]; then verb="Updated"; else verb="Added"; fi
+echo "✓ $verb shortcuts in $rc (backup: $rc.bak):"
+echo "    $learn_alias  →  $repo/bin/learn"
+echo "    $sync_alias  →  $repo/bin/sync"
+echo "  Open a new terminal (or run: source $rc), then try:  $learn_alias status"
