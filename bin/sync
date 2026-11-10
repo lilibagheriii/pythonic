@@ -1,78 +1,79 @@
 #!/usr/bin/env bash
-# sync: save your work and swap updates with GitHub.
+# sync: save your work and swap updates with GitHub, in one step.
 #
-#   bin/sync                    commit everything, pull your mentor's changes, push
+#   bin/sync                    commit, pull your mentor's changes, push
 #   bin/sync "finished ch 4"    same, with your own commit message
-#   bin/sync --pull             only pull (e.g. to read new mentor feedback)
-#   bin/sync --status           show what would be committed, change nothing
+#   bin/sync --keep-mine        same, but where you and GitHub changed the same lines
+#                               of a code file, keep your version of those lines
+#
+# Run it whenever you start or stop. When you and your mentor both edited the same
+# LOG.md, both sets of lines are kept automatically (see .gitattributes). If the same
+# lines of a code file were changed on both sides, nothing is lost: sync puts
+# everything back how it was and tells you which file it was.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+  sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'
+  exit 0
+fi
+
+prefer=""
+if [ "${1:-}" = "--keep-mine" ]; then
+  prefer="-Xtheirs"   # during a rebase, "theirs" means the local commits being replayed
+  shift
+fi
+
+if [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ] || [ -f .git/MERGE_HEAD ]; then
+  echo "✗ Git is in the middle of a merge from an earlier command."
+  echo "  Finish it, or ask your mentor. To undo it: git rebase --abort (or git merge --abort)"
+  exit 1
+fi
+
 branch="$(git rev-parse --abbrev-ref HEAD)"
 
-has_remote() { git remote get-url origin >/dev/null 2>&1; }
-remote_has_branch() { git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; }
-
-pull() {
-  if ! has_remote; then
-    echo "· No GitHub remote yet, so there's nothing to pull. See README → 'First-time setup'."
-    return
-  fi
-  if ! remote_has_branch; then
-    echo "· origin/$branch doesn't exist yet. It will be created on push."
-    return
-  fi
-  echo "→ Pulling origin/$branch"
-  if ! git pull --rebase --autostash origin "$branch"; then
-    cat <<EOF
-
-✗ Your changes and the GitHub changes touch the same lines (a merge conflict).
-  1. Run: git status          (files marked "both modified" have conflicts)
-  2. Open each one, keep the right text, and delete the <<<<<<< ======= >>>>>>> lines
-  3. Run: git add <file>      for each fixed file
-  4. Run: git rebase --continue
-  5. Run: bin/sync again
-  Stuck? bin/learn ask "merge conflict in <file>" and ping your mentor.
-EOF
-    exit 1
-  fi
-}
-
-case "${1:-}" in
-  --pull)
-    pull
-    exit 0
-    ;;
-  --status)
-    git status --short
-    exit 0
-    ;;
-  -h|--help)
-    sed -n '2,8p' "$0" | sed 's/^# \{0,1\}//'
-    exit 0
-    ;;
-esac
-
+# 1. Save local work.
 git add -A
-if git diff --cached --quiet; then
-  echo "· Nothing new to commit."
-else
+if ! git diff --cached --quiet; then
   if [ $# -gt 0 ]; then
     message="$*"
   else
-    current="$(cat .current-chapter 2>/dev/null || echo general)"
-    message="Progress on ${current} ($(date +%Y-%m-%d))"
+    message="Progress on $(cat .current-chapter 2>/dev/null || echo general) ($(date +%Y-%m-%d))"
   fi
   git commit -q -m "$message"
-  echo "✓ Committed: $message"
+  echo "✓ Saved: $message"
 fi
 
-pull
+if ! git remote get-url origin >/dev/null 2>&1; then
+  echo "· Saved locally. Connect GitHub to share it: see README → 'First-time setup'."
+  exit 0
+fi
 
-if has_remote; then
-  echo "→ Pushing to origin/$branch"
+# 2. Get the latest from GitHub and replay local commits on top of it.
+if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+  git fetch -q origin "$branch"
+  incoming="$(git rev-list --count "HEAD..origin/$branch")"
+  if [ "$incoming" -gt 0 ]; then
+    if git rebase -q $prefer "origin/$branch" >/dev/null 2>&1; then
+      echo "✓ Pulled $incoming update(s) from GitHub"
+      git diff --stat ORIG_HEAD HEAD 2>/dev/null | sed 's/^/    /' || true
+    else
+      conflicted="$(git diff --name-only --diff-filter=U | sed 's/^/    /')"
+      git rebase --abort
+      echo "✗ You and GitHub both changed the same lines in:"
+      echo "$conflicted"
+      echo "  Nothing was lost, and your work is still saved locally."
+      echo "  See GitHub's version:  git show origin/$branch:<file>"
+      echo "  Keep yours:            bin/sync --keep-mine"
+      echo "  Not sure?              ask your mentor which one to keep"
+      exit 1
+    fi
+  fi
+fi
+
+# 3. Share.
+if [ -n "$(git rev-list "origin/$branch..HEAD" 2>/dev/null || echo new)" ]; then
   git push -q -u origin "$branch"
-  echo "✓ Synced with GitHub."
-else
-  echo "· Saved locally only. Add a GitHub remote to share with your mentor."
+  echo "✓ Pushed to GitHub"
 fi
+echo "✓ In sync."

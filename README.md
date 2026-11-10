@@ -36,7 +36,7 @@ bin/learn note "f-strings need the f before the quote"
 bin/learn ask "Why does 0.1 + 0.2 print 0.30000000000000004? Tried: round()"
 bin/learn park "2-8: come back after reading about string methods"
 
-bin/sync                                     # commit and push. Do this every time you stop.
+bin/sync                                     # save, pull mentor feedback, push. Run it when you start and when you stop.
 ```
 
 Before you stop for the day, open the chapter's `LOG.md` and fill in the session entry: what you did, what you learned, what confused you, and what's next.
@@ -68,8 +68,8 @@ Phase 1 has three project tracks and you pick two. Mark the one you skip with `b
 | `bin/learn complete [id] [--force]` | Mark a chapter complete |
 | `bin/learn skip <id> [reason]` | Mark a chapter skipped |
 | `bin/learn init` | Create the folder and `LOG.md` for anything new added to `curriculum.json` |
-| `bin/sync [message]` | Commit everything, pull mentor changes, push |
-| `bin/sync --pull` | Only pull, for example to read new mentor feedback |
+| `bin/sync [message]` | Commit everything, pull mentor changes, push. If you and your mentor both edited a `LOG.md`, both sets of lines are kept. |
+| `bin/sync --keep-mine` | Use this only if `bin/sync` says you both changed the same lines of a code file. Keeps your version of those lines. |
 
 Commands that change a log use your current chapter. Add `-c <id>` to target another one, for example `bin/learn unpark 1 -c pcc-03`. Chapter ids work without leading zeros too: `pcc-3` finds `pcc-03`.
 

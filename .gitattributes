@@ -1,0 +1,3 @@
+# When the student and mentor both add lines to the same spot in a log, keep both
+# sides instead of stopping with a merge conflict.
+LOG.md merge=union

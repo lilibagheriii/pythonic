@@ -6,7 +6,7 @@ The student drives. Your job is to review, unblock, and sign off at milestones, 
 
 ```bash
 git clone <student's repo> && cd python-learning-path
-bin/sync --pull          # later, to get the latest
+bin/sync                 # later, to get the latest (and push any feedback you wrote)
 bin/learn status         # where they are, exercise counts, open parked items and questions
 bin/learn questions      # everything waiting on you
 bin/learn parked         # everything they've set aside
@@ -16,7 +16,7 @@ bin/learn parked         # everything they've set aside
 
 ## Where to give feedback
 
-- **Phase 0:** the student commits straight to `main`. Write feedback in the **Mentor feedback** section of the chapter's `LOG.md`, then run `bin/sync "Mentor feedback on pcc-04"`. The student gets it with `bin/sync --pull`.
+- **Phase 0:** the student commits straight to `main`. Write feedback in the **Mentor feedback** section of the chapter's `LOG.md`, then run `bin/sync "Mentor feedback on pcc-04"`. The student gets it on their next `bin/sync`. Logs merge automatically even if you both edited the same one, so keep feedback in `LOG.md` and leave their code files alone. Suggest code changes in the log or in a pull request instead.
 - **Answering questions:** reply under the question in **Questions for mentor** (an indented `- ` line), or tell them in person. The student closes it with `bin/learn answered <n> "<summary in their own words>"`. Having them write the summary themselves is the point.
 - **Phase 1 onwards:** the student works on a branch per chapter or feature (`git switch -c pcc-18`), and `bin/sync` pushes that branch. They open a pull request, and you review it like a teammate's. Merging is the sign-off.
 
