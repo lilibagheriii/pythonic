@@ -1,0 +1,358 @@
+<title>Python Career Roadmap</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column; a to-scale month timeline, then role cards keyed 1–5 to the timeline markers. */
+:root {
+  --bg: #f6f7f5;
+  --surface: #ffffff;
+  --ink: #15191c;
+  --ink-2: #4b5258;
+  --ink-3: #79818a;
+  --rule: #dfe3e1;
+  --grid: #e9ecea;
+  --learn: #2f6fa8;      /* series 1: the program */
+  --add: #b8741a;        /* series 2: additions for the job market */
+  --work: #c9d0d4;       /* neutral: time on the job */
+  --chip: #eef2f5;
+  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111416; --surface: #171a1d; --ink: #eef1f2; --ink-2: #b6bdc2;
+    --ink-3: #8a9399; --rule: #2a3034; --grid: #22282c;
+    --learn: #5b97d6; --add: #c07a22; --work: #3a4247; --chip: #1f2528;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111416; --surface: #171a1d; --ink: #eef1f2; --ink-2: #b6bdc2;
+  --ink-3: #8a9399; --rule: #2a3034; --grid: #22282c;
+  --learn: #5b97d6; --add: #c07a22; --work: #3a4247; --chip: #1f2528;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body);
+  font-size: 15px; line-height: 1.55; margin: 0;
+}
+.wrap {
+  max-width: 1040px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 64px;
+  display: grid; gap: 40px;
+}
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; }
+h2 { font-size: 22px; }
+h3 { font-size: 17px; }
+p { margin: 0; max-width: 68ch; }
+code, .mono { font-family: var(--font-mono); font-size: 0.86em; }
+.eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); font-weight: 600; }
+header { display: grid; gap: 12px; }
+.lede { font-size: 18px; color: var(--ink-2); }
+
+.verdict { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+.verdict div { display: grid; gap: 6px; align-content: start; min-width: 0; }
+.verdict h3 { font-size: 15px; }
+.verdict p { color: var(--ink-2); font-size: 14px; }
+
+section { display: grid; gap: 16px; }
+.chart-card { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 20px; display: grid; gap: 14px; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 13px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.sw { width: 14px; height: 10px; border-radius: 3px; display: inline-block; }
+.scroll { overflow-x: auto; position: relative; }
+svg { display: block; }
+svg text { font-family: var(--font-body); }
+.mark { cursor: default; }
+.mark:focus { outline: none; }
+.mark:focus .hit, .mark:hover .hit { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 3 2; }
+.tip {
+  position: absolute; pointer-events: none; z-index: 5; max-width: 280px;
+  background: var(--ink); color: var(--bg); font-size: 13px; line-height: 1.45;
+  padding: 8px 10px; border-radius: 6px;
+}
+.tip b { display: block; font-weight: 600; }
+.note { font-size: 13px; color: var(--ink-3); }
+
+.roles { display: grid; gap: 12px; }
+.role {
+  background: var(--surface); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 18px 20px; display: grid; grid-template-columns: 44px 1fr; gap: 4px 16px;
+}
+.num {
+  grid-row: span 2; width: 34px; height: 34px; border-radius: 50%;
+  background: var(--ink); color: var(--bg); display: grid; place-items: center;
+  font-family: var(--font-display); font-weight: 700;
+}
+.role-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; min-width: 0; }
+.when { font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px 20px; margin-top: 8px; min-width: 0; }
+.facts div { min-width: 0; }
+.facts dt { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); font-weight: 600; margin-bottom: 2px; }
+.facts dd { margin: 0; font-size: 14px; color: var(--ink-2); }
+.tag { display: inline-block; font-family: var(--font-mono); font-size: 12px; background: var(--chip); color: var(--ink); padding: 1px 6px; border-radius: 4px; margin: 1px 2px 1px 0; white-space: nowrap; }
+.tag.add { box-shadow: inset 0 -2px 0 var(--add); }
+
+.adds { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.adds div { border-top: 3px solid var(--add); padding-top: 12px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.adds p { font-size: 14px; color: var(--ink-2); }
+.adds .when { font-size: 12px; }
+@media (max-width: 520px) {
+  .role { grid-template-columns: 1fr; }
+  .num { grid-row: auto; }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Beginner → mid-level Python developer, no CS degree</div>
+    <h1>Python Career Roadmap</h1>
+    <p class="lede">Yes, the program can get someone without a CS degree into the job market. It builds the skills. Three additions help those skills get past hiring filters and interviews.</p>
+  </header>
+
+  <div class="verdict">
+    <div>
+      <h3>It produces evidence</h3>
+      <p>Junior hiring runs on proof: deployed projects, tests, Git history, and a walkthrough of your own code. Every phase ends in one of those, and the daily commits in the learning repo are evidence too.</p>
+    </div>
+    <div>
+      <h3>Phase 2 is real CS</h3>
+      <p><em>Composing Programs</em> is the text of Berkeley's CS 61A. It covers the core ideas of a first-year computer science course: abstraction, recursion, efficiency, interpreters, and SQL.</p>
+    </div>
+    <div>
+      <h3>Where a degree still counts</h3>
+      <p>Some large employers and most visa sponsorship screen on degrees. Referrals and internal moves skip that screen, so the student's new full-time job may be the best way in.</p>
+    </div>
+    <div>
+      <h3>Titles follow experience</h3>
+      <p>Studying alone doesn't make anyone mid-level. That title usually comes 2–3 years into a developer job. The plan gets the first job and makes those years count.</p>
+    </div>
+  </div>
+
+  <section aria-labelledby="t-chart">
+    <h2 id="t-chart">Milestones by month</h2>
+    <div class="chart-card">
+      <div class="legend" aria-hidden="true">
+        <span><i class="sw" style="background:var(--learn)"></i>The program (phases 0–4)</span>
+        <span><i class="sw" style="background:var(--add)"></i>Add for the job market</span>
+        <span><i class="sw" style="background:var(--work)"></i>Working as a developer</span>
+        <span><svg width="14" height="14" viewBox="0 0 14 14"><path d="M7 1 L13 7 L7 13 L1 7 Z" fill="var(--ink)"/></svg>Can apply for role 1–5</span>
+      </div>
+      <div class="scroll" id="scroll">
+        <svg id="chart" role="img" aria-labelledby="chart-desc"></svg>
+        <div class="tip" id="tip" hidden></div>
+      </div>
+      <p class="note" id="chart-desc">To scale from Nov 2026. Assumes 8 hours a day until Nov 14, then 6–8 hours a week. Hover or tab to a bar or marker for details. The same information is in the role list below.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-roles">
+    <h2 id="t-roles">Roles, in the order they open up</h2>
+    <div class="roles" id="roles"></div>
+    <p class="note">Every tag is a log in the learning repo. Highlighted tags are the job-market additions below.</p>
+  </section>
+
+  <section aria-labelledby="t-adds">
+    <h2 id="t-adds">Add these to the program</h2>
+    <div class="adds">
+      <div>
+        <h3>Algorithms and data structures</h3>
+        <span class="when">Months 5–10, alongside Fluent Python</span>
+        <p><em>Grokking Algorithms</em>, 2nd ed. (Aditya Bhargava), plus 2–3 practice problems a week, from easy to medium. Most developer interviews include a coding problem, and Phase 2 only starts this topic.</p>
+      </div>
+      <div>
+        <h3>Tools of the job</h3>
+        <span class="when">Months 6–9, used in the capstone</span>
+        <p><em>The Linux Command Line</em> (William Shotts, free online), Docker basics, and how HTTP works. These come up from the first day of any developer job.</p>
+      </div>
+      <div>
+        <h3>Job search</h3>
+        <span class="when">From month 4 until the first developer job</span>
+        <p>Polished project READMEs, a résumé that leads with projects, LinkedIn, one meetup a month, and asking for referrals. Monthly mock interviews with the mentor start in month 7.</p>
+      </div>
+      <div>
+        <h3>pandas, for the data route</h3>
+        <span class="when">Months 3–5, only if aiming at role 2 as a data analyst</span>
+        <p><em>Python for Data Analysis</em>, 3rd ed. (Wes McKinney, free online). Analyst interviews expect pandas and Jupyter on top of SQL.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  const START = new Date(2026, 10, 10);           // Tue Nov 10 2026, month 0
+  const SPAN = 48;                                // months shown
+  const monthLabel = m => {
+    const d = new Date(START.getFullYear(), START.getMonth() + m, 1);
+    return d.toLocaleString("en-US", { month: "short" }) + " ’" + String(d.getFullYear()).slice(2);
+  };
+
+  // [start month, end month, label, detail]
+  const lanes = [
+    { name: "Program", color: "var(--learn)", rows: [[
+      [0, 0.15, "", "Phase 0 · Foundations", "Python Crash Course Part I, 8h/day sprint, Nov 10–14. Logs pcc-00 to pcc-11, proj-mini."],
+      [0.25, 1.6, "P1", "Phase 1 · Build real things", "Python Crash Course Part II, two project tracks. Ends with proj-deployed-app."],
+      [1.6, 4.2, "P2", "Phase 2 · Functions and declarative style", "Composing Programs + CS 61A Hog, SQL. Ends with proj-declarative-refactor."],
+      [4.2, 9.5, "P3 Fluent Python", "Phase 3 · Write Python like an experienced developer", "Fluent Python chapters. Ends with proj-capstone."],
+      [9.5, 18.5, "P4 Design and teamwork", "Phase 4 · Design and teamwork", "Architecture Patterns with Python, Pragmatic Programmer, 3 merged open-source PRs."]
+    ]]},
+    { name: "Additions", color: "var(--add)", rows: [
+      [[4, 11, "Job search", "Job search", "Portfolio, résumé, LinkedIn, meetups, referrals. Mock interviews monthly from month 7."]],
+      [[5, 10, "Algorithms", "Algorithms and data structures", "Grokking Algorithms + 2–3 practice problems a week."]],
+      [[6, 9, "Linux · Docker", "Tools of the job", "Linux command line, Docker basics, HTTP."]],
+      [[3, 5, "pandas", "pandas (data route only)", "Python for Data Analysis, for data analyst roles."]]
+    ]},
+    { name: "On the job", color: "var(--work)", rows: [[
+      [10.5, SPAN, "Working as a developer: experience counts from here", "First developer job", "Earliest around Sep 2027. Years of professional experience are what turn junior into mid-level."]
+    ]]}
+  ];
+
+  const roles = [
+    { n: 1, m: 2, title: "IT support with scripting · manual QA tester",
+      when: "Earliest Jan 2027 · after Phase 1",
+      gate: ["pcc-00…pcc-11", "proj-mini", "proj-deployed-app"],
+      show: "The deployed app, a GitHub history of daily commits, and a script that automates something at the current job.",
+      interview: "Practical questions, sometimes a small take-home task.",
+      tip: "Easiest as an internal move at the current employer." },
+    { n: 2, m: 4.5, title: "Junior data analyst · QA automation engineer",
+      when: "Earliest Apr 2027 · after Phase 2",
+      gate: ["pcc-11", "pcc-15…pcc-17", "cp-4.3", "sqlbolt", "+add-pandas"],
+      show: "An analysis of real data using SQL, or a pytest suite that tests a real app.",
+      interview: "Live SQL queries, a data or test-design task.",
+      tip: "Data analyst needs the pandas addition. QA automation leans on pytest." },
+    { n: 3, m: 10, title: "Junior Python / backend developer",
+      when: "Earliest Sep 2027 · after Phase 3",
+      gate: ["proj-capstone", "fp-01…fp-18", "+add-algorithms", "+add-tools", "+add-job-search"],
+      show: "The capstone with real users, tests, CI, a database and Docker, plus two earlier projects.",
+      interview: "Coding problems (easy to medium), a walkthrough of your project, basic HTTP and database questions.",
+      tip: "The first real developer title. Everything after this is driven by work experience." },
+    { n: 4, m: 22, title: "Software engineer",
+      when: "Around Sep 2028 · about a year into the first developer job",
+      gate: ["ap-01…ap-06", "proj-oss", "pragprog"],
+      show: "Features shipped at work, bugs fixed in production, pull requests reviewed.",
+      interview: "Usually a promotion. Externally: coding plus a small design discussion.",
+      tip: "Dropping the 'junior' label usually takes 12–18 months on the job." },
+    { n: 5, m: 34, end: SPAN, title: "Mid-level developer",
+      when: "Sep 2029 – late 2030 · 2–3 years into developer work",
+      gate: ["PLAN.md checklist: all ticked"],
+      show: "Owns features end to end, writes small design docs, mentors a junior.",
+      interview: "System design for a small service, deep project discussion, code review exercise.",
+      tip: "The mid-level checklist in PLAN.md is what interviewers probe at this level." }
+  ];
+
+  // ---- role cards (the table view of the chart)
+  const rolesEl = document.getElementById("roles");
+  roles.forEach(r => {
+    const tags = r.gate.map(g => g.startsWith("+")
+      ? `<span class="tag add">${g.slice(1)}</span>`
+      : `<span class="tag">${g}</span>`).join("");
+    const el = document.createElement("article");
+    el.className = "role";
+    el.innerHTML = `<div class="num" aria-hidden="true">${r.n}</div>
+      <div class="role-head"><h3>${r.n}. ${r.title}</h3><span class="when">${r.when}</span></div>
+      <dl class="facts">
+        <div><dt>Needs</dt><dd>${tags}</dd></div>
+        <div><dt>Show</dt><dd>${r.show}</dd></div>
+        <div><dt>Interview</dt><dd>${r.interview}</dd></div>
+        <div><dt>Note</dt><dd>${r.tip}</dd></div>
+      </dl>`;
+    rolesEl.appendChild(el);
+  });
+
+  // ---- chart
+  const svg = document.getElementById("chart");
+  const NS = "http://www.w3.org/2000/svg";
+  const W = 960, LABEL_W = 92, RIGHT = 16, TOP = 28, ROW_H = 26, ROW_GAP = 8, LANE_GAP = 18, ROLE_H = 64;
+  const plotW = W - LABEL_W - RIGHT;
+  const x = m => LABEL_W + (m / SPAN) * plotW;
+  const lanesH = lanes.reduce((h, l) => h + l.rows.length * (ROW_H + ROW_GAP) - ROW_GAP + LANE_GAP, 0);
+  const H = TOP + lanesH + ROLE_H + 8;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.setAttribute("width", W);
+  svg.setAttribute("height", H);
+  svg.style.minWidth = W + "px";
+
+  const el = (tag, attrs, parent) => {
+    const n = document.createElementNS(NS, tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    (parent || svg).appendChild(n);
+    return n;
+  };
+  const text = (str, attrs, parent) => { const t = el("text", attrs, parent); t.textContent = str; return t; };
+
+  // gridlines every 6 months
+  for (let m = 0; m <= SPAN; m += 6) {
+    el("line", { x1: x(m), x2: x(m), y1: TOP - 6, y2: H - 4, stroke: "var(--grid)", "stroke-width": 1 });
+    text(monthLabel(m), { x: x(m), y: 14, "text-anchor": m === SPAN ? "end" : m === 0 ? "start" : "middle", "font-size": 11, fill: "var(--ink-3)" });
+  }
+
+  const tip = document.getElementById("tip");
+  const scroll = document.getElementById("scroll");
+  function showTip(node, title, body) {
+    tip.innerHTML = `<b>${title}</b>${body}`;
+    tip.hidden = false;
+    const r = node.getBoundingClientRect(), s = scroll.getBoundingClientRect();
+    let left = r.left - s.left + scroll.scrollLeft + r.width / 2 - 140;
+    left = Math.max(scroll.scrollLeft + 4, Math.min(left, scroll.scrollLeft + s.width - 284));
+    tip.style.left = left + "px";
+    tip.style.top = (r.bottom - s.top + 8) + "px";
+  }
+  const hideTip = () => { tip.hidden = true; };
+  function interactive(g, title, body) {
+    g.setAttribute("class", "mark");
+    g.setAttribute("tabindex", "0");
+    g.setAttribute("aria-label", title + ". " + body);
+    g.addEventListener("mouseenter", () => showTip(g, title, body));
+    g.addEventListener("focus", () => showTip(g, title, body));
+    g.addEventListener("mouseleave", hideTip);
+    g.addEventListener("blur", hideTip);
+  }
+
+  let y = TOP;
+  lanes.forEach(lane => {
+    const laneTop = y;
+    lane.rows.forEach(row => {
+      row.forEach(([a, b, label, title, body]) => {
+        const g = el("g", {});
+        const x0 = x(a) + 1, w = Math.max(6, x(b) - x(a) - 2);   // 2px surface gap between neighbours
+        const isWork = lane.name === "On the job";
+        el("rect", { x: x0, y: y, width: w, height: ROW_H, rx: 4, fill: lane.color, class: "hit" }, g);
+        if (label) {
+          const fits = label.length * 6.6 + 8 < w;
+          text(label, {
+            x: fits ? x0 + 8 : x0 + w + 6, y: y + ROW_H / 2 + 4, "font-size": 12, "font-weight": 500,
+            fill: fits ? (isWork ? "var(--ink)" : "#ffffff") : "var(--ink-2)"
+          }, g);
+        }
+        interactive(g, title, body);
+      });
+      y += ROW_H + ROW_GAP;
+    });
+    y -= ROW_GAP;
+    text(lane.name, { x: 0, y: laneTop + 16, "font-size": 12, "font-weight": 600, fill: "var(--ink-2)" });
+    y += LANE_GAP;
+  });
+
+  // role markers
+  const roleY = y + 14;
+  text("Roles", { x: 0, y: roleY + 4, "font-size": 12, "font-weight": 600, fill: "var(--ink-2)" });
+  roles.forEach(r => {
+    const g = el("g", {});
+    if (r.end) {
+      el("rect", { x: x(r.m), y: roleY - 4, width: x(r.end) - x(r.m), height: 8, rx: 4, fill: "var(--ink)", opacity: 0.18, class: "hit" }, g);
+    }
+    const cx = x(r.m);
+    el("path", { d: `M${cx} ${roleY - 10} L${cx + 10} ${roleY} L${cx} ${roleY + 10} L${cx - 10} ${roleY} Z`, fill: "var(--ink)", stroke: "var(--surface)", "stroke-width": 2, class: r.end ? "" : "hit" }, g);
+    text(String(r.n), { x: cx, y: roleY + 4, "text-anchor": "middle", "font-size": 11, "font-weight": 700, fill: "var(--surface)" }, g);
+    text(monthLabel(r.m), { x: cx, y: roleY + 28, "text-anchor": "middle", "font-size": 11, fill: "var(--ink-3)" }, g);
+    interactive(g, `${r.n}. ${r.title}`, ` ${r.when}. ${r.tip}`);
+  });
+})();
+</script>
