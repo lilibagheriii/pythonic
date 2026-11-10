@@ -1,0 +1,496 @@
+#!/usr/bin/env python3
+"""learn: helper for the chapter logs in this repo.
+
+Run `bin/learn -h` for the command list, or `bin/learn <command> -h` for details.
+Uses only the standard library, so it works on Python 3.8 and newer.
+"""
+import argparse
+import datetime
+import json
+import re
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+CURRICULUM_FILE = ROOT / "curriculum.json"
+CURRENT_FILE = ROOT / ".current-chapter"
+TEMPLATE_DIR = ROOT / "templates"
+
+SECTIONS = {
+    "exercises": "## Exercises",
+    "sessions": "## Session log",
+    "remarks": "## Remarks",
+    "questions": "## Questions for mentor",
+    "parked": "## Parked",
+    "retro": "## Retro",
+}
+CHECKBOX = re.compile(r"^- \[( |x)\] ")
+PLACEHOLDER = re.compile(r"^_.+_$")
+STATUSES = ("not-started", "in-progress", "complete", "skipped")
+
+
+# ---------------------------------------------------------------- helpers
+
+def die(message):
+    print(f"error: {message}", file=sys.stderr)
+    sys.exit(1)
+
+
+def today():
+    return datetime.date.today().isoformat()
+
+
+def slugify(text, sep="-"):
+    return re.sub(r"[^a-z0-9]+", sep, text.lower()).strip(sep)
+
+
+def normalize_id(text):
+    """'pcc-2' and 'PCC-02' both become 'pcc-2'."""
+    return re.sub(r"(?<![\d.])0+(?=\d)", "", text.strip().lower())
+
+
+def rel(path):
+    return path.relative_to(ROOT)
+
+
+def fill(template, values):
+    for key, value in values.items():
+        template = template.replace("{{" + key + "}}", value)
+    return template
+
+
+# ---------------------------------------------------------------- chapters
+
+class Chapter:
+    def __init__(self, entry, phase):
+        self.id = entry["id"]
+        self.title = entry["title"]
+        self.ref = entry.get("ref", "")
+        self.kind = entry.get("kind", "chapter")
+        self.goals = entry.get("goals", [])
+        self.book = entry.get("book", phase.get("book", ""))
+        self.phase = phase
+        self.dir = ROOT / phase["dir"] / f"{self.id}-{slugify(self.title)}"
+        self.log = self.dir / "LOG.md"
+
+    @property
+    def work_dir(self):
+        return self.dir / ("src" if self.kind == "project" else "exercises")
+
+    def read(self):
+        if not self.log.exists():
+            die(f"{rel(self.log)} is missing. Run `bin/learn init` first.")
+        return self.log.read_text(encoding="utf-8")
+
+    def write(self, text):
+        self.log.write_text(text, encoding="utf-8")
+
+
+def load_chapters():
+    data = json.loads(CURRICULUM_FILE.read_text(encoding="utf-8"))
+    return [Chapter(entry, phase) for phase in data["phases"] for entry in phase["chapters"]]
+
+
+def find_chapter(arg, chapters=None):
+    chapters = chapters or load_chapters()
+    wanted = normalize_id(arg)
+    for ch in chapters:
+        if normalize_id(ch.id) == wanted:
+            return ch
+    matches = [ch for ch in chapters
+               if normalize_id(ch.id).startswith(wanted) or wanted in ch.dir.name]
+    if len(matches) == 1:
+        return matches[0]
+    if matches:
+        die(f"'{arg}' matches several chapters: {', '.join(c.id for c in matches)}")
+    die(f"no chapter called '{arg}'. Run `bin/learn status` to see the ids.")
+
+
+def current_chapter(args):
+    if getattr(args, "chapter", None):
+        return find_chapter(args.chapter)
+    if CURRENT_FILE.exists() and CURRENT_FILE.read_text().strip():
+        return find_chapter(CURRENT_FILE.read_text().strip())
+    die("no current chapter yet. Run `bin/learn start <id>`, or pass -c <id>.")
+
+
+# ---------------------------------------------------------------- LOG.md editing
+
+def get_field(text, name):
+    match = re.search(rf"^\*\*{name}:\*\* *(.*)$", text, re.M)
+    return match.group(1).strip() if match else ""
+
+
+def set_field(text, name, value):
+    return re.sub(rf"^(\*\*{name}:\*\*).*$", lambda m: f"{m.group(1)} {value}", text, count=1, flags=re.M)
+
+
+def section_range(lines, key):
+    heading = SECTIONS[key]
+    start = next((i for i, line in enumerate(lines) if line.strip() == heading), None)
+    if start is None:
+        die(f"the '{heading}' section is missing from LOG.md. Put the heading back and try again.")
+    end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("## ")), len(lines))
+    return start, end
+
+
+def append_entry(text, key, entry):
+    """Add `entry` to the end of a section, removing the `_None yet._` placeholder."""
+    lines = text.split("\n")
+    start, end = section_range(lines, key)
+    body = [line for line in lines[start + 1:end] if not PLACEHOLDER.match(line.strip())]
+    while body and not body[0].strip():
+        body.pop(0)
+    while body and not body[-1].strip():
+        body.pop()
+    has_entries = any(not line.lstrip().startswith("<!--") for line in body)
+    gap = [""] if key == "sessions" and has_entries else []
+    lines[start + 1:end] = body + gap + entry.split("\n") + [""]
+    return "\n".join(lines)
+
+
+def checkbox_items(text, key):
+    """Top-level `- [ ]` / `- [x]` lines in a section: list of (line_number, done, line)."""
+    lines = text.split("\n")
+    start, end = section_range(lines, key)
+    items = []
+    for i in range(start + 1, end):
+        match = CHECKBOX.match(lines[i])
+        if match:
+            items.append((i, match.group(1) == "x", lines[i]))
+    return items
+
+
+def tick_item(text, key, number, suffix):
+    open_items = [item for item in checkbox_items(text, key) if not item[1]]
+    if not 1 <= number <= len(open_items):
+        die(f"there is no open item #{number}. There are {len(open_items)} open.")
+    line_no, _, line = open_items[number - 1]
+    lines = text.split("\n")
+    lines[line_no] = line.replace("- [ ] ", "- [x] ", 1) + suffix
+    return "\n".join(lines), line, line_no
+
+
+def strip_checkbox(line):
+    return CHECKBOX.sub("", line)
+
+
+def counts(ch):
+    text = ch.read()
+    exercises = checkbox_items(text, "exercises")
+    return {
+        "status": get_field(text, "Status") or "not-started",
+        "ex_done": sum(1 for _, done, _ in exercises if done),
+        "ex_total": len(exercises),
+        "parked": sum(1 for _, done, _ in checkbox_items(text, "parked") if not done),
+        "questions": sum(1 for _, done, _ in checkbox_items(text, "questions") if not done),
+    }
+
+
+# ---------------------------------------------------------------- commands
+
+def cmd_init(args):
+    """Create any missing chapter folders and LOG.md files from curriculum.json."""
+    template = (TEMPLATE_DIR / "LOG.md").read_text(encoding="utf-8")
+    created = 0
+    for ch in load_chapters():
+        dirs = [ch.work_dir] + ([ch.dir / "tests"] if ch.kind == "project" else [])
+        for d in dirs:
+            d.mkdir(parents=True, exist_ok=True)
+            if not any(d.iterdir()):
+                (d / ".gitkeep").touch()
+        if not ch.log.exists():
+            goals = ch.goals or ["Do every exercise in this reading", "Explain the main idea out loud to the mentor"]
+            ch.write(fill(template, {
+                "id": ch.id,
+                "title": ch.title,
+                "book": ch.book,
+                "ref": ch.ref,
+                "phase": ch.phase["title"],
+                "goals_heading": "Definition of done" if ch.kind == "project" else "Goals",
+                "goals": "\n".join(f"- [ ] {goal}" for goal in goals),
+            }))
+            created += 1
+            print(f"created {rel(ch.log)}")
+    print(f"{created} new log(s). Everything else was already there.")
+
+
+def cmd_start(args):
+    ch = find_chapter(args.id)
+    text = ch.read()
+    status = get_field(text, "Status")
+    if status == "complete":
+        print(f"note: {ch.id} is already complete. Making it current anyway.")
+    else:
+        text = set_field(text, "Status", "in-progress")
+    if get_field(text, "Started") in ("", "—"):
+        text = set_field(text, "Started", today())
+    ch.write(text)
+    CURRENT_FILE.write_text(ch.id + "\n")
+    print(f"▶ {ch.id} · {ch.title} is now your current chapter.")
+    print(f"  Log:       {rel(ch.log)}")
+    print(f"  Exercises: {rel(ch.work_dir)}/")
+    print(f"  Reading:   {ch.ref}")
+
+
+def cmd_ex(args):
+    ch = current_chapter(args)
+    ex_id = args.id.strip()
+    title = " ".join(args.title).strip()
+    text = ch.read()
+    for _, _, line in checkbox_items(text, "exercises"):
+        if re.match(rf"{re.escape(ex_id)}(\s|$)", strip_checkbox(line)):
+            die(f"exercise {ex_id} is already in {rel(ch.log)}.")
+    if ch.kind == "project" and title:
+        name = slugify(title, "_") + ".py"          # e.g. src/storage.py, importable as a module
+    else:
+        name = "ex_" + slugify(f"{ex_id} {title}", "_") + ".py"
+    path = ch.work_dir / name
+    ch.work_dir.mkdir(parents=True, exist_ok=True)
+    if not path.exists():
+        label = f"Exercise {ex_id}" + (f": {title}" if title else "")
+        path.write_text(fill((TEMPLATE_DIR / "exercise.py").read_text(encoding="utf-8"), {
+            "label": label, "book": ch.book, "ref": ch.ref,
+            "chapter_id": ch.id, "chapter_title": ch.title,
+        }), encoding="utf-8")
+    link = f"{ch.work_dir.name}/{name}"
+    entry = f"- [ ] {ex_id}" + (f" — {title}" if title else "") + f" → [{name}]({link})"
+    ch.write(append_entry(text, "exercises", entry))
+    gitkeep = ch.work_dir / ".gitkeep"
+    if gitkeep.exists():
+        gitkeep.unlink()
+    print(f"created {rel(path)}")
+    print(f"When it works: bin/learn done {ex_id}")
+
+
+def cmd_done(args):
+    ch = current_chapter(args)
+    text = ch.read()
+    for line_no, done, line in checkbox_items(text, "exercises"):
+        if re.match(rf"{re.escape(args.id)}(\s|$)", strip_checkbox(line)):
+            if done:
+                die(f"exercise {args.id} is already ticked off.")
+            lines = text.split("\n")
+            lines[line_no] = line.replace("- [ ] ", "- [x] ", 1) + f" ✓ {today()}"
+            ch.write("\n".join(lines))
+            c = counts(ch)
+            print(f"✓ {args.id} done. {ch.id}: {c['ex_done']}/{c['ex_total']} exercises.")
+            return
+    die(f"no exercise {args.id} in {ch.id}. Add it with `bin/learn ex {args.id} \"title\"`.")
+
+
+def cmd_note(args):
+    ch = current_chapter(args)
+    ch.write(append_entry(ch.read(), "remarks", f"- ({today()}) {' '.join(args.text)}"))
+    print(f"remark added to {rel(ch.log)}")
+
+
+def cmd_ask(args):
+    ch = current_chapter(args)
+    ch.write(append_entry(ch.read(), "questions", f"- [ ] ({today()}) {' '.join(args.text)}"))
+    print(f"question added to {rel(ch.log)}. Run `bin/sync` so your mentor sees it.")
+
+
+def cmd_answered(args):
+    ch = current_chapter(args)
+    answer = " ".join(args.answer).strip()
+    text, line, line_no = tick_item(ch.read(), "questions", args.number, f" — answered {today()}")
+    if answer:
+        lines = text.split("\n")
+        lines.insert(line_no + 1, f"  - **Answer:** {answer}")
+        text = "\n".join(lines)
+    ch.write(text)
+    print(f"marked answered: {strip_checkbox(line)}")
+
+
+def cmd_park(args):
+    ch = current_chapter(args)
+    ch.write(append_entry(ch.read(), "parked", f"- [ ] ({today()}) {' '.join(args.text)}"))
+    print(f"parked in {ch.id}. See everything parked with `bin/learn parked`.")
+
+
+def cmd_unpark(args):
+    ch = current_chapter(args)
+    note = " ".join(args.note).strip()
+    suffix = f" — done {today()}" + (f": {note}" if note else "")
+    text, line, _ = tick_item(ch.read(), "parked", args.number, suffix)
+    ch.write(text)
+    print(f"unparked: {strip_checkbox(line)}")
+
+
+def list_open(key, label, command):
+    found = 0
+    for ch in load_chapters():
+        if not ch.log.exists():
+            continue
+        open_items = [line for _, done, line in checkbox_items(ch.read(), key) if not done]
+        if open_items:
+            print(f"\n{ch.id} · {ch.title}")
+            for n, line in enumerate(open_items, 1):
+                print(f"  #{n}  {strip_checkbox(line)}")
+            found += len(open_items)
+    if found:
+        print(f"\n{found} open {label}. Close one with `bin/learn {command} <n> -c <chapter>`.")
+    else:
+        print(f"No open {label}.")
+
+
+def cmd_parked(args):
+    list_open("parked", "parked item(s)", "unpark")
+
+
+def cmd_questions(args):
+    list_open("questions", "question(s)", "answered")
+
+
+def cmd_session(args):
+    ch = current_chapter(args)
+    hours = f" ({args.hours}h)" if args.hours else ""
+    entry = "\n".join([
+        f"### {today()}{hours}",
+        "- **Did:** ",
+        "- **Learned:** ",
+        "- **Confusing:** ",
+        "- **Next time:** ",
+    ])
+    ch.write(append_entry(ch.read(), "sessions", entry))
+    print(f"session entry added. Fill it in: {rel(ch.log)}")
+
+
+def cmd_complete(args):
+    ch = find_chapter(args.id) if args.id else current_chapter(args)
+    text = ch.read()
+    problems = []
+    open_ex = [strip_checkbox(l) for _, done, l in checkbox_items(text, "exercises") if not done]
+    open_parked = [strip_checkbox(l) for _, done, l in checkbox_items(text, "parked") if not done]
+    open_q = [strip_checkbox(l) for _, done, l in checkbox_items(text, "questions") if not done]
+    if open_ex:
+        problems.append(f"{len(open_ex)} exercise(s) not done: " + "; ".join(open_ex))
+    if open_parked:
+        problems.append(f"{len(open_parked)} parked item(s) still open: " + "; ".join(open_parked))
+    if open_q:
+        problems.append(f"{len(open_q)} question(s) not answered yet")
+    lines = text.split("\n")
+    start, end = section_range(lines, "retro")
+    if any(re.match(r"^- \*\*[^*]+:\*\*\s*$", line) for line in lines[start:end]):
+        problems.append("the Retro section isn't filled in")
+    if problems and not args.force:
+        print(f"{ch.id} isn't ready to complete:")
+        for p in problems:
+            print(f"  • {p}")
+        print("Fix those, or park what's left and run again with --force to finish anyway.")
+        sys.exit(1)
+    text = set_field(text, "Status", "complete")
+    text = set_field(text, "Completed", today())
+    if get_field(text, "Started") in ("", "—"):
+        text = set_field(text, "Started", today())
+    ch.write(text)
+    print(f"🎉 {ch.id} · {ch.title} is complete.")
+    chapters = load_chapters()
+    after = chapters[[c.id for c in chapters].index(ch.id) + 1:]
+    upcoming = next((c for c in after if c.log.exists() and counts(c)["status"] == "not-started"), None)
+    if upcoming:
+        print(f"Next up: {upcoming.id} · {upcoming.title}. Run `bin/learn start {upcoming.id}`.")
+
+
+def cmd_skip(args):
+    ch = find_chapter(args.id)
+    text = set_field(ch.read(), "Status", "skipped")
+    reason = " ".join(args.reason).strip() or "not on my chosen track"
+    ch.write(append_entry(text, "remarks", f"- ({today()}) Skipped: {reason}"))
+    print(f"{ch.id} marked skipped.")
+
+
+def cmd_status(args):
+    chapters = load_chapters()
+    current = CURRENT_FILE.read_text().strip() if CURRENT_FILE.exists() else ""
+    marks = {"not-started": "·", "in-progress": "…", "complete": "✓", "skipped": "–"}
+    phase_title = None
+    totals = {s: 0 for s in STATUSES}
+    parked = questions = 0
+    for ch in chapters:
+        if not ch.log.exists():
+            continue
+        c = counts(ch)
+        totals[c["status"]] = totals.get(c["status"], 0) + 1
+        parked += c["parked"]
+        questions += c["questions"]
+        if args.phase is not None and not ch.phase["dir"].startswith(f"phase-{args.phase}"):
+            continue
+        if ch.phase["title"] != phase_title:
+            phase_title = ch.phase["title"]
+            print(f"\n{phase_title}")
+        pointer = "▶" if ch.id == current else " "
+        title = ch.title if len(ch.title) <= 38 else ch.title[:37] + "…"
+        extras = []
+        if c["ex_total"]:
+            extras.append(f"ex {c['ex_done']}/{c['ex_total']}")
+        if c["parked"]:
+            extras.append(f"parked {c['parked']}")
+        if c["questions"]:
+            extras.append(f"questions {c['questions']}")
+        print(f" {pointer} {marks.get(c['status'], '?')} {ch.id:<26} {title:<38} {c['status']:<12} {'  '.join(extras)}")
+    done = totals["complete"] + totals["skipped"]
+    total = sum(totals.values())
+    print(f"\n{done}/{total} done ({totals['complete']} complete, {totals['skipped']} skipped), "
+          f"{totals['in-progress']} in progress. Open: {parked} parked, {questions} question(s).")
+
+
+# ---------------------------------------------------------------- CLI
+
+def main():
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(errors="replace")   # don't crash on ✓ ▶ in older Windows consoles
+    chapter_opt = argparse.ArgumentParser(add_help=False)
+    chapter_opt.add_argument("-c", "--chapter", help="chapter id (default: your current chapter)")
+
+    parser = argparse.ArgumentParser(
+        prog="bin/learn",
+        description="Keep your chapter logs up to date. Commands that change a log work on your "
+                    "current chapter unless you pass -c <id>.",
+    )
+    sub = parser.add_subparsers(dest="command", metavar="<command>")
+
+    def add(name, func, help_text, parents=()):
+        p = sub.add_parser(name, help=help_text, description=help_text, parents=list(parents))
+        p.set_defaults(func=func)
+        return p
+
+    add("status", cmd_status, "show every chapter and its progress").add_argument(
+        "phase", nargs="?", type=int, help="show only this phase number")
+    add("start", cmd_start, "make a chapter current and mark it in progress").add_argument("id")
+    p = add("ex", cmd_ex, "create a new exercise file and list it in the log", [chapter_opt])
+    p.add_argument("id", help="exercise number from the book, e.g. 4-3")
+    p.add_argument("title", nargs="*", help="exercise title, e.g. Counting to Twenty")
+    add("done", cmd_done, "tick off an exercise", [chapter_opt]).add_argument("id")
+    add("session", cmd_session, "add today's session entry to fill in", [chapter_opt]).add_argument(
+        "--hours", type=float, help="hours studied today")
+    add("note", cmd_note, "add a remark", [chapter_opt]).add_argument("text", nargs="+")
+    add("ask", cmd_ask, "log a question for your mentor", [chapter_opt]).add_argument("text", nargs="+")
+    p = add("answered", cmd_answered, "mark open question <n> as answered", [chapter_opt])
+    p.add_argument("number", type=int)
+    p.add_argument("answer", nargs="*", help="short summary of the answer")
+    add("park", cmd_park, "park something unfinished to come back to", [chapter_opt]).add_argument("text", nargs="+")
+    p = add("unpark", cmd_unpark, "mark open parked item <n> as done", [chapter_opt])
+    p.add_argument("number", type=int)
+    p.add_argument("note", nargs="*", help="optional note on how it was finished")
+    add("parked", cmd_parked, "list everything still parked, in every chapter")
+    add("questions", cmd_questions, "list every unanswered question")
+    p = add("complete", cmd_complete, "mark a chapter complete (checks for loose ends first)", [chapter_opt])
+    p.add_argument("id", nargs="?", help="chapter id (default: current)")
+    p.add_argument("--force", action="store_true", help="complete even with loose ends")
+    p = add("skip", cmd_skip, "mark a chapter skipped, e.g. a project track you didn't pick")
+    p.add_argument("id")
+    p.add_argument("reason", nargs="*")
+    add("init", cmd_init, "create any missing chapter folders and logs from curriculum.json")
+
+    args = parser.parse_args()
+    if not args.command:
+        parser.print_help()
+        return
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()

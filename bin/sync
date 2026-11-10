@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# sync: save your work and swap updates with GitHub.
+#
+#   bin/sync                    commit everything, pull your mentor's changes, push
+#   bin/sync "finished ch 4"    same, with your own commit message
+#   bin/sync --pull             only pull (e.g. to read new mentor feedback)
+#   bin/sync --status           show what would be committed, change nothing
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+branch="$(git rev-parse --abbrev-ref HEAD)"
+
+has_remote() { git remote get-url origin >/dev/null 2>&1; }
+remote_has_branch() { git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; }
+
+pull() {
+  if ! has_remote; then
+    echo "· No GitHub remote yet, so there's nothing to pull. See README → 'First-time setup'."
+    return
+  fi
+  if ! remote_has_branch; then
+    echo "· origin/$branch doesn't exist yet. It will be created on push."
+    return
+  fi
+  echo "→ Pulling origin/$branch"
+  if ! git pull --rebase --autostash origin "$branch"; then
+    cat <<EOF
+
+✗ Your changes and the GitHub changes touch the same lines (a merge conflict).
+  1. Run: git status          (files marked "both modified" have conflicts)
+  2. Open each one, keep the right text, and delete the <<<<<<< ======= >>>>>>> lines
+  3. Run: git add <file>      for each fixed file
+  4. Run: git rebase --continue
+  5. Run: bin/sync again
+  Stuck? bin/learn ask "merge conflict in <file>" and ping your mentor.
+EOF
+    exit 1
+  fi
+}
+
+case "${1:-}" in
+  --pull)
+    pull
+    exit 0
+    ;;
+  --status)
+    git status --short
+    exit 0
+    ;;
+  -h|--help)
+    sed -n '2,8p' "$0" | sed 's/^# \{0,1\}//'
+    exit 0
+    ;;
+esac
+
+git add -A
+if git diff --cached --quiet; then
+  echo "· Nothing new to commit."
+else
+  if [ $# -gt 0 ]; then
+    message="$*"
+  else
+    current="$(cat .current-chapter 2>/dev/null || echo general)"
+    message="Progress on ${current} ($(date +%Y-%m-%d))"
+  fi
+  git commit -q -m "$message"
+  echo "✓ Committed: $message"
+fi
+
+pull
+
+if has_remote; then
+  echo "→ Pushing to origin/$branch"
+  git push -q -u origin "$branch"
+  echo "✓ Synced with GitHub."
+else
+  echo "· Saved locally only. Add a GitHub remote to share with your mentor."
+fi

@@ -1,0 +1,101 @@
+{
+  "phases": [
+    {
+      "dir": "phase-0-foundations",
+      "title": "Phase 0 · Foundations (sprint: Tue Nov 10 – Sat Nov 14, 8h/day)",
+      "book": "Python Crash Course, 3rd ed. (Eric Matthes)",
+      "chapters": [
+        {"id": "pcc-00", "title": "Setup and Git", "ref": "Appendix A Installation, Appendix B Text Editors and IDEs, Appendix D Using Git", "goals": ["Python and VS Code installed; can run a .py file from the terminal", "This repo pushed to GitHub; `bin/sync` works", "Can explain what a commit is and why we commit small and often"]},
+        {"id": "pcc-01", "title": "Getting Started", "ref": "Chapter 1", "goals": ["Run hello_world.py from VS Code and from the terminal"]},
+        {"id": "pcc-02", "title": "Variables and Simple Data Types", "ref": "Chapter 2", "goals": ["Use strings, numbers, f-strings and comments", "Read a traceback and find the line that broke"]},
+        {"id": "pcc-03", "title": "Introducing Lists", "ref": "Chapter 3", "goals": ["Add, remove, sort and index list items"]},
+        {"id": "pcc-04", "title": "Working with Lists", "ref": "Chapter 4", "goals": ["Loop over a list", "Write a list comprehension without looking it up (first declarative idea!)", "Slice lists; know the difference between a list and a tuple"]},
+        {"id": "pcc-05", "title": "if Statements", "ref": "Chapter 5", "goals": ["Write if/elif/else chains and boolean conditions"]},
+        {"id": "pcc-06", "title": "Dictionaries", "ref": "Chapter 6", "goals": ["Store and loop over key/value data; nest lists and dicts"]},
+        {"id": "pcc-07", "title": "User Input and while Loops", "ref": "Chapter 7", "goals": ["Use input(), while loops, break/continue and flags"]},
+        {"id": "pcc-08", "title": "Functions", "ref": "Chapter 8", "goals": ["Explain return values vs side effects", "Use positional, keyword, default and *args parameters", "Split code into modules and import them"]},
+        {"id": "pcc-09", "title": "Classes", "ref": "Chapter 9", "goals": ["Write a class with __init__ and methods", "Use inheritance; know when not to"]},
+        {"id": "pcc-10", "title": "Files and Exceptions", "ref": "Chapter 10", "goals": ["Read and write files with pathlib", "Handle errors with try/except", "Save and load data as JSON"]},
+        {"id": "pcc-11", "title": "Testing Your Code", "ref": "Chapter 11", "goals": ["Write and run a pytest suite that passes", "Use a fixture"]},
+        {"id": "proj-mini", "kind": "project", "title": "Mini Project", "ref": "Saturday Nov 14: build ~6h, demo 1h, retro and Phase 1 planning 1h", "goals": ["Student picks and scopes it (e.g. a command-line tracker that saves to JSON)", "Has tests that pass", "README explains how to run it", "Demoed to mentor and signed off", "Phase 1 project tracks chosen and first weekly goals written"]}
+      ]
+    },
+    {
+      "dir": "phase-1-build",
+      "title": "Phase 1 · Build real things (weeks 2–7, part-time)",
+      "book": "Python Crash Course, 3rd ed. (Eric Matthes)",
+      "chapters": [
+        {"id": "pcc-12", "title": "A Ship That Fires Bullets", "ref": "Chapter 12 (game track, optional)"},
+        {"id": "pcc-13", "title": "Aliens", "ref": "Chapter 13 (game track, optional)"},
+        {"id": "pcc-14", "title": "Scoring", "ref": "Chapter 14 (game track, optional)"},
+        {"id": "pcc-15", "title": "Generating Data", "ref": "Chapter 15 (data track)"},
+        {"id": "pcc-16", "title": "Downloading Data", "ref": "Chapter 16 (data track)"},
+        {"id": "pcc-17", "title": "Working with APIs", "ref": "Chapter 17 (data track)"},
+        {"id": "pcc-18", "title": "Getting Started with Django", "ref": "Chapter 18 (web track)"},
+        {"id": "pcc-19", "title": "User Accounts", "ref": "Chapter 19 (web track)"},
+        {"id": "pcc-20", "title": "Styling and Deploying an App", "ref": "Chapter 20 (web track)"},
+        {"id": "proj-deployed-app", "kind": "project", "title": "Deployed App", "ref": "Phase 1 milestone", "goals": ["Web app is live at a public URL", "README write-up: what it does, how it's built, what I'd do next", "Work done on branches and merged through pull requests the mentor reviewed"]}
+      ]
+    },
+    {
+      "dir": "phase-2-functions",
+      "title": "Phase 2 · Think in functions and declarative style (weeks 8–17)",
+      "book": "Composing Programs (John DeNero), composingprograms.com, plus CS 61A labs",
+      "chapters": [
+        {"id": "cp-1.1", "title": "Getting Started", "ref": "Section 1.1"},
+        {"id": "cp-1.2", "title": "Elements of Programming", "ref": "Section 1.2"},
+        {"id": "cp-1.3", "title": "Defining New Functions", "ref": "Section 1.3"},
+        {"id": "cp-1.4", "title": "Designing Functions", "ref": "Section 1.4"},
+        {"id": "cp-1.5", "title": "Control", "ref": "Section 1.5"},
+        {"id": "cp-1.6", "title": "Higher-Order Functions", "ref": "Section 1.6", "goals": ["Pass functions as arguments and return them from functions", "Write and explain a closure and a lambda"]},
+        {"id": "cp-1.7", "title": "Recursive Functions", "ref": "Section 1.7"},
+        {"id": "cs61a-hog", "kind": "project", "title": "Hog", "ref": "CS 61A project: Hog", "goals": ["All autograder tests pass locally", "Mentor has reviewed one function I'm proud of and one I'm not"]},
+        {"id": "cp-2.1", "title": "Introduction to Data", "ref": "Section 2.1"},
+        {"id": "cp-2.2", "title": "Data Abstraction", "ref": "Section 2.2"},
+        {"id": "cp-2.3", "title": "Sequences", "ref": "Section 2.3"},
+        {"id": "cp-2.4", "title": "Mutable Data", "ref": "Section 2.4"},
+        {"id": "cp-2.5", "title": "Object-Oriented Programming", "ref": "Section 2.5"},
+        {"id": "cp-2.8", "title": "Efficiency", "ref": "Section 2.8"},
+        {"id": "cp-2.9", "title": "Recursive Objects", "ref": "Section 2.9"},
+        {"id": "cp-4.2", "title": "Implicit Sequences", "ref": "Section 4.2 (iterators and generators)"},
+        {"id": "cp-4.3", "title": "Declarative Programming", "ref": "Section 4.3 (SQL)"},
+        {"id": "sqlbolt", "title": "SQL Practice", "ref": "SQLBolt lessons, then the same queries in SQLite", "book": "SQLBolt (sqlbolt.com)"},
+        {"id": "proj-declarative-refactor", "kind": "project", "title": "Declarative Refactor", "ref": "Phase 2 milestone", "goals": ["Rewrite one Phase 1 project with pure functions, comprehensions and generators instead of loops that change state", "Tests still pass", "Explain the before and after to the mentor"]}
+      ]
+    },
+    {
+      "dir": "phase-3-fluent",
+      "title": "Phase 3 · Write Python like an experienced developer (months 5–9)",
+      "book": "Fluent Python, 2nd ed. (Luciano Ramalho)",
+      "chapters": [
+        {"id": "fp-01", "title": "The Python Data Model", "ref": "Chapter 1"},
+        {"id": "fp-02", "title": "An Array of Sequences", "ref": "Chapter 2"},
+        {"id": "fp-03", "title": "Dictionaries and Sets", "ref": "Chapter 3"},
+        {"id": "fp-05", "title": "Data Class Builders", "ref": "Chapter 5"},
+        {"id": "fp-07", "title": "Functions as First-Class Objects", "ref": "Chapter 7"},
+        {"id": "fp-08", "title": "Type Hints in Functions", "ref": "Chapter 8"},
+        {"id": "fp-09", "title": "Decorators and Closures", "ref": "Chapter 9"},
+        {"id": "fp-10", "title": "Design Patterns with First-Class Functions", "ref": "Chapter 10"},
+        {"id": "fp-13", "title": "Interfaces, Protocols, and ABCs", "ref": "Chapter 13"},
+        {"id": "fp-17", "title": "Iterators, Generators, and Classic Coroutines", "ref": "Chapter 17"},
+        {"id": "fp-18", "title": "with, match, and else Blocks", "ref": "Chapter 18"},
+        {"id": "proj-capstone", "kind": "project", "title": "Capstone", "ref": "Phase 3 milestone", "goals": ["Has a real user (ideally a tool for my job)", "Type hints checked with mypy", "Linting with ruff", "Tests with pytest", "Checks run on every push with GitHub Actions", "Uses a database"]}
+      ]
+    },
+    {
+      "dir": "phase-4-design",
+      "title": "Phase 4 · Design and teamwork (months 9–18)",
+      "book": "Architecture Patterns with Python (Percival & Gregory), cosmicpython.com",
+      "chapters": [
+        {"id": "ap-01", "title": "Domain Modeling", "ref": "Chapter 1"},
+        {"id": "ap-02", "title": "Repository Pattern", "ref": "Chapter 2"},
+        {"id": "ap-03", "title": "On Coupling and Abstractions", "ref": "Chapter 3"},
+        {"id": "ap-04", "title": "Flask API and Service Layer", "ref": "Chapter 4"},
+        {"id": "ap-05", "title": "TDD in High Gear and Low Gear", "ref": "Chapter 5"},
+        {"id": "ap-06", "title": "Unit of Work Pattern", "ref": "Chapter 6"},
+        {"id": "pragprog", "title": "The Pragmatic Programmer", "ref": "One topic per week, discussed at the check-in", "book": "The Pragmatic Programmer, 20th anniversary ed. (Thomas & Hunt)", "goals": ["Log one takeaway per topic in Remarks"]},
+        {"id": "proj-oss", "kind": "project", "title": "Open Source Contributions", "ref": "Phase 4 milestone", "goals": ["3 pull requests merged into real open-source projects (link each one here)", "Reviewed at least 5 pull requests from the mentor or a peer"]}
+      ]
+    }
+  ]
+}
