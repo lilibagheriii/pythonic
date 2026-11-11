@@ -18,6 +18,7 @@
 ## Exercises
 <!-- Added by `l ex`. Tick off with `l done <id>`. -->
 - [x] 4-1 → [ex_4_1.py](exercises/ex_4_1.py) ✓ 2026-11-11
+- [ ] 4-10 → [ex_4_10.py](exercises/ex_4_10.py)
 
 ## Session log
 <!-- `l session` adds a dated entry. Fill it in before you stop for the day. -->
@@ -29,7 +30,7 @@ _None yet._
 
 ## Questions for mentor
 <!-- Tried for 30 minutes first? Say what you tried. `l ask "..."` -->
-_None yet._
+- [ ] (2026-11-11) 4-10
 
 ## Parked
 <!-- Unfinished things to come back to. `l park "..."`, then `l unpark <n>` when it's done. -->
