@@ -5,8 +5,8 @@
       "title": "Phase 0 · Foundations (sprint: Tue Nov 10 – Sat Nov 14, 8h/day)",
       "book": "Python Crash Course, 3rd ed. (Eric Matthes)",
       "chapters": [
-        {"id": "pcc-00", "title": "Setup and Git", "ref": "Appendix A Installation, Appendix B Text Editors and IDEs, Appendix D Using Git", "goals": ["Python and VS Code installed; can run a .py file from the terminal", "This repo pushed to GitHub; `bin/sync` works", "Can explain what a commit is and why we commit small and often"]},
-        {"id": "pcc-01", "title": "Getting Started", "ref": "Chapter 1", "goals": ["Run hello_world.py from VS Code and from the terminal"]},
+        {"id": "pcc-00", "title": "Setup and Git", "ref": "Appendix A Installation, Appendix B Text Editors and IDEs (we use PyCharm instead of the book's VS Code), Appendix D Using Git", "goals": ["Python and PyCharm installed; the project uses the .venv interpreter", "Can open, hide and leave PyCharm's terminal with the keyboard (README → Working in PyCharm)", "Shortcuts installed; `s` ends with \"✓ In sync.\"", "Can explain what a commit is and why we commit small and often"]},
+        {"id": "pcc-01", "title": "Getting Started", "ref": "Chapter 1 (use PyCharm where the book uses VS Code)", "goals": ["Run hello_world.py from PyCharm's Run button and from PyCharm's terminal"]},
         {"id": "pcc-02", "title": "Variables and Simple Data Types", "ref": "Chapter 2", "goals": ["Use strings, numbers, f-strings and comments", "Read a traceback and find the line that broke"]},
         {"id": "pcc-03", "title": "Introducing Lists", "ref": "Chapter 3", "goals": ["Add, remove, sort and index list items"]},
         {"id": "pcc-04", "title": "Working with Lists", "ref": "Chapter 4", "goals": ["Loop over a list", "Write a list comprehension without looking it up (first declarative idea!)", "Slice lists; know the difference between a list and a tuple"]},

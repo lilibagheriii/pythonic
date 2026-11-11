@@ -7,30 +7,30 @@
 **Started:** —
 **Completed:** —
 
-> Daily loop: `bin/learn start {{id}}` → read and type out the examples → `bin/learn ex <id> "<title>"` for each exercise → `bin/learn done <id>` → `bin/learn session` before you stop → `bin/sync`
+> How to work through this log: see [The daily loop](../../README.md#the-daily-loop) in the main README.
 
 ## {{goals_heading}}
 <!-- What should I be able to do when this is finished? Rewrite these in your own words if it helps. -->
 {{goals}}
 
 ## Exercises
-<!-- Added by `bin/learn ex`. Tick off with `bin/learn done <id>`. -->
+<!-- Added by `l ex`. Tick off with `l done <id>`. -->
 _None yet._
 
 ## Session log
-<!-- `bin/learn session` adds a dated entry. Fill it in before you stop for the day. -->
+<!-- `l session` adds a dated entry. Fill it in before you stop for the day. -->
 _None yet._
 
 ## Remarks
-<!-- Aha moments, gotchas, useful links. `bin/learn note "..."` -->
+<!-- Aha moments, gotchas, useful links. `l note "..."` -->
 _None yet._
 
 ## Questions for mentor
-<!-- Tried for 30 minutes first? Say what you tried. `bin/learn ask "..."` -->
+<!-- Tried for 30 minutes first? Say what you tried. `l ask "..."` -->
 _None yet._
 
 ## Parked
-<!-- Unfinished things to come back to. `bin/learn park "..."`, then `bin/learn unpark <n>` when it's done. -->
+<!-- Unfinished things to come back to. `l park "..."`, then `l unpark <n>` when it's done. -->
 _None yet._
 
 ## Mentor feedback
@@ -38,7 +38,7 @@ _None yet._
 _None yet._
 
 ## Retro
-<!-- Fill this in before `bin/learn complete`. -->
+<!-- Fill this in before `l complete`. -->
 - **What clicked:**
 - **Still fuzzy:**
 - **How I'd explain the main idea to a beginner:**

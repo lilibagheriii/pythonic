@@ -77,13 +77,40 @@ class Chapter:
     def work_dir(self):
         return self.dir / ("src" if self.kind == "project" else "exercises")
 
+    @property
+    def started(self):
+        return self.log.exists()
+
     def read(self):
-        if not self.log.exists():
-            die(f"{rel(self.log)} is missing. Run `bin/learn init` first.")
+        if not self.started:
+            die(f"{self.id} hasn't been started yet. Run `bin/learn start {self.id}` first.")
         return self.log.read_text(encoding="utf-8")
 
     def write(self, text):
         self.log.write_text(text, encoding="utf-8")
+
+    def create_log(self):
+        """Make the chapter folder and its LOG.md from the template as it is right now.
+
+        Logs are created only when a chapter is started, so editing templates/LOG.md changes
+        every chapter started after that. A kind-specific template (templates/LOG.project.md)
+        is used instead when it exists.
+        """
+        template = TEMPLATE_DIR / f"LOG.{self.kind}.md"
+        if not template.exists():
+            template = TEMPLATE_DIR / "LOG.md"
+        goals = self.goals or ["Do every exercise in this reading", "Explain the main idea out loud to the mentor"]
+        self.dir.mkdir(parents=True, exist_ok=True)
+        self.write(fill(template.read_text(encoding="utf-8"), {
+            "id": self.id,
+            "title": self.title,
+            "book": self.book,
+            "ref": self.ref,
+            "phase": self.phase["title"],
+            "goals_heading": "Definition of done" if self.kind == "project" else "Goals",
+            "goals": "\n".join(f"- [ ] {goal}" for goal in goals),
+        }))
+        print(f"created {rel(self.log)} from {rel(template)}")
 
 
 def load_chapters():
@@ -106,9 +133,29 @@ def find_chapter(arg, chapters=None):
     die(f"no chapter called '{arg}'. Run `bin/learn status` to see the ids.")
 
 
-def current_chapter(args):
+def mark_started(ch):
+    """Create the log if needed and mark the chapter in progress. Doesn't change the current chapter."""
+    if not ch.started:
+        ch.create_log()
+    text = ch.read()
+    if get_field(text, "Status") != "complete":
+        text = set_field(text, "Status", "in-progress")
+    if get_field(text, "Started") in ("", "—"):
+        text = set_field(text, "Started", today())
+    ch.write(text)
+
+
+def current_chapter(args, create=False):
+    """The chapter a command works on: -c <id> if given, else the current chapter.
+
+    With create=True (commands that add something: ex, note, ask, park, session), the
+    first use of a side log through -c starts it, without switching the current chapter.
+    """
     if getattr(args, "chapter", None):
-        return find_chapter(args.chapter)
+        ch = find_chapter(args.chapter)
+        if create and not ch.started:
+            mark_started(ch)
+        return ch
     if CURRENT_FILE.exists() and CURRENT_FILE.read_text().strip():
         return find_chapter(CURRENT_FILE.read_text().strip())
     die("no current chapter yet. Run `bin/learn start <id>`, or pass -c <id>.")
@@ -122,22 +169,36 @@ def get_field(text, name):
 
 
 def set_field(text, name, value):
-    return re.sub(rf"^(\*\*{name}:\*\*).*$", lambda m: f"{m.group(1)} {value}", text, count=1, flags=re.M)
+    pattern = rf"^(\*\*{name}:\*\*).*$"
+    if re.search(pattern, text, re.M):
+        return re.sub(pattern, lambda m: f"{m.group(1)} {value}", text, count=1, flags=re.M)
+    lines = text.split("\n")          # a template without this field: add it under the title
+    lines.insert(1, f"**{name}:** {value}")
+    return "\n".join(lines)
 
 
 def section_range(lines, key):
+    """(start, end) line numbers of a section, or (None, None) if the log doesn't have it."""
     heading = SECTIONS[key]
     start = next((i for i, line in enumerate(lines) if line.strip() == heading), None)
     if start is None:
-        die(f"the '{heading}' section is missing from LOG.md. Put the heading back and try again.")
+        return None, None
     end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("## ")), len(lines))
     return start, end
 
 
 def append_entry(text, key, entry):
-    """Add `entry` to the end of a section, removing the `_None yet._` placeholder."""
+    """Add `entry` to the end of a section, removing the `_None yet._` placeholder.
+
+    If the template the log came from has no such section, it is added at the end.
+    """
     lines = text.split("\n")
     start, end = section_range(lines, key)
+    if start is None:
+        while lines and not lines[-1].strip():
+            lines.pop()
+        lines += ["", SECTIONS[key]]
+        start, end = len(lines) - 1, len(lines)
     body = [line for line in lines[start + 1:end] if not PLACEHOLDER.match(line.strip())]
     while body and not body[0].strip():
         body.pop(0)
@@ -153,6 +214,8 @@ def checkbox_items(text, key):
     """Top-level `- [ ]` / `- [x]` lines in a section: list of (line_number, done, line)."""
     lines = text.split("\n")
     start, end = section_range(lines, key)
+    if start is None:
+        return []
     items = []
     for i in range(start + 1, end):
         match = CHECKBOX.match(lines[i])
@@ -176,6 +239,8 @@ def strip_checkbox(line):
 
 
 def counts(ch):
+    if not ch.started:
+        return {"status": "not-started", "ex_done": 0, "ex_total": 0, "parked": 0, "questions": 0}
     text = ch.read()
     exercises = checkbox_items(text, "exercises")
     return {
@@ -189,43 +254,11 @@ def counts(ch):
 
 # ---------------------------------------------------------------- commands
 
-def cmd_init(args):
-    """Create a folder and LOG.md for any chapter in curriculum.json that doesn't have one.
-
-    exercises/ and src/ folders are not created here. `bin/learn ex` makes them when the
-    first file goes in, so unused chapters don't fill the repo with empty folders.
-    """
-    template = (TEMPLATE_DIR / "LOG.md").read_text(encoding="utf-8")
-    created = 0
-    for ch in load_chapters():
-        if not ch.log.exists():
-            ch.dir.mkdir(parents=True, exist_ok=True)
-            goals = ch.goals or ["Do every exercise in this reading", "Explain the main idea out loud to the mentor"]
-            ch.write(fill(template, {
-                "id": ch.id,
-                "title": ch.title,
-                "book": ch.book,
-                "ref": ch.ref,
-                "phase": ch.phase["title"],
-                "goals_heading": "Definition of done" if ch.kind == "project" else "Goals",
-                "goals": "\n".join(f"- [ ] {goal}" for goal in goals),
-            }))
-            created += 1
-            print(f"created {rel(ch.log)}")
-    print(f"{created} new log(s). Everything else was already there.")
-
-
 def cmd_start(args):
     ch = find_chapter(args.id)
-    text = ch.read()
-    status = get_field(text, "Status")
-    if status == "complete":
+    if ch.started and get_field(ch.read(), "Status") == "complete":
         print(f"note: {ch.id} is already complete. Making it current anyway.")
-    else:
-        text = set_field(text, "Status", "in-progress")
-    if get_field(text, "Started") in ("", "—"):
-        text = set_field(text, "Started", today())
-    ch.write(text)
+    mark_started(ch)
     CURRENT_FILE.write_text(ch.id + "\n")
     print(f"▶ {ch.id} · {ch.title} is now your current chapter.")
     print(f"  Log:       {rel(ch.log)}")
@@ -235,7 +268,7 @@ def cmd_start(args):
 
 
 def cmd_ex(args):
-    ch = current_chapter(args)
+    ch = current_chapter(args, create=True)
     ex_id = args.id.strip()
     title = " ".join(args.title).strip()
     text = ch.read()
@@ -278,13 +311,13 @@ def cmd_done(args):
 
 
 def cmd_note(args):
-    ch = current_chapter(args)
+    ch = current_chapter(args, create=True)
     ch.write(append_entry(ch.read(), "remarks", f"- ({today()}) {' '.join(args.text)}"))
     print(f"remark added to {rel(ch.log)}")
 
 
 def cmd_ask(args):
-    ch = current_chapter(args)
+    ch = current_chapter(args, create=True)
     ch.write(append_entry(ch.read(), "questions", f"- [ ] ({today()}) {' '.join(args.text)}"))
     print(f"question added to {rel(ch.log)}. Run `bin/sync` so your mentor sees it.")
 
@@ -302,7 +335,7 @@ def cmd_answered(args):
 
 
 def cmd_park(args):
-    ch = current_chapter(args)
+    ch = current_chapter(args, create=True)
     ch.write(append_entry(ch.read(), "parked", f"- [ ] ({today()}) {' '.join(args.text)}"))
     print(f"parked in {ch.id}. See everything parked with `bin/learn parked`.")
 
@@ -342,7 +375,7 @@ def cmd_questions(args):
 
 
 def cmd_session(args):
-    ch = current_chapter(args)
+    ch = current_chapter(args, create=True)
     hours = f" ({args.hours}h)" if args.hours else ""
     entry = "\n".join([
         f"### {today()}{hours}",
@@ -370,7 +403,7 @@ def cmd_complete(args):
         problems.append(f"{len(open_q)} question(s) not answered yet")
     lines = text.split("\n")
     start, end = section_range(lines, "retro")
-    if any(re.match(r"^- \*\*[^*]+:\*\*\s*$", line) for line in lines[start:end]):
+    if start is not None and any(re.match(r"^- \*\*[^*]+:\*\*\s*$", line) for line in lines[start:end]):
         problems.append("the Retro section isn't filled in")
     if problems and not args.force:
         print(f"{ch.id} isn't ready to complete:")
@@ -386,13 +419,15 @@ def cmd_complete(args):
     print(f"🎉 {ch.id} · {ch.title} is complete.")
     chapters = load_chapters()
     after = chapters[[c.id for c in chapters].index(ch.id) + 1:]
-    upcoming = next((c for c in after if c.log.exists() and counts(c)["status"] == "not-started"), None)
+    upcoming = next((c for c in after if counts(c)["status"] == "not-started"), None)
     if upcoming:
         print(f"Next up: {upcoming.id} · {upcoming.title}. Run `bin/learn start {upcoming.id}`.")
 
 
 def cmd_skip(args):
     ch = find_chapter(args.id)
+    if not ch.started:
+        ch.create_log()   # keeps a record of the skip and the reason
     text = set_field(ch.read(), "Status", "skipped")
     reason = " ".join(args.reason).strip() or "not on my chosen track"
     ch.write(append_entry(text, "remarks", f"- ({today()}) Skipped: {reason}"))
@@ -407,8 +442,6 @@ def cmd_status(args):
     totals = {s: 0 for s in STATUSES}
     parked = questions = 0
     for ch in chapters:
-        if not ch.log.exists():
-            continue
         c = counts(ch)
         totals[c["status"]] = totals.get(c["status"], 0) + 1
         parked += c["parked"]
@@ -481,7 +514,6 @@ def main():
     p = add("skip", cmd_skip, "mark a chapter skipped, e.g. a project track you didn't pick")
     p.add_argument("id")
     p.add_argument("reason", nargs="*")
-    add("init", cmd_init, "create any missing chapter folders and logs from curriculum.json")
 
     args = parser.parse_args()
     if not args.command:

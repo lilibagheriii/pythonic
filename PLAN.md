@@ -2,7 +2,7 @@
 
 Realistic timeline: **18–24 months.** The sprint week builds the base at 8 hours a day. After that it's part-time, about 6–8 hours a week (three weeknights of about an hour, plus 3–4 hours at the weekend).
 
-Every chapter below has a folder and a `LOG.md`. `bin/learn status` shows where things stand.
+Every chapter below gets a folder and a `LOG.md` when the student starts it (`l start <id>`). `l status` shows where things stand, including chapters not started yet.
 
 ## Phase 0 · Foundations (sprint: Tue Nov 10 – Sat Nov 14, 8h/day)
 **Book:** *Python Crash Course*, 3rd ed., Part I

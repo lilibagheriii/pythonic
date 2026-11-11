@@ -14,6 +14,10 @@ bin/learn parked         # everything they've set aside
 
 `bin/learn status` reads the logs, so it shows the student's real progress without you opening every file.
 
+## Changing the log format
+
+A chapter's `LOG.md` is created from `templates/LOG.md` when the student first starts that chapter. Edit the template whenever the format should change, for example to add a section or reword the prompts. Every chapter started after that gets the new format, and logs that already exist stay as they are. For a separate project format, add `templates/LOG.project.md`. The scripts only rely on the `**Status:**` line and the `## ` section headings. If a section is missing, the commands add it when they need it. To change what a new exercise file looks like, edit `templates/exercise.py`.
+
 ## Where to give feedback
 
 - **Phase 0:** the student commits straight to `main`. Write feedback in the **Mentor feedback** section of the chapter's `LOG.md`, then run `bin/sync "Mentor feedback on pcc-04"`. The student gets it on their next `bin/sync`. Logs merge automatically even if you both edited the same one, so keep feedback in `LOG.md` and leave their code files alone. Suggest code changes in the log or in a pull request instead.
