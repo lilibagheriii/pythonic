@@ -31,6 +31,8 @@ _None yet._
 ## Questions for mentor
 <!-- Tried for 30 minutes first? Say what you tried. `l ask "..."` -->
 - [ ] (2026-11-11) 4-10
+- [ ] (2026-11-11) what is the difference friend_pizzas = pizzas[:]
+friend_pizzas = pizzas
 
 ## Parked
 <!-- Unfinished things to come back to. `l park "..."`, then `l unpark <n>` when it's done. -->
