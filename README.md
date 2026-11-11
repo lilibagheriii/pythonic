@@ -46,13 +46,8 @@ Keep the code in the editor and the commands in the terminal, and move between t
 |---|---|---|
 | Open the terminal, or jump to it | ⌥F12 | Alt+F12 |
 | Back to the editor, terminal stays open | Esc | Esc |
-| Hide the terminal and go back to the editor | ⇧Esc | Shift+Esc |
-| Reopen the last tool window | F12 | F12 |
-| New terminal tab | ⌘T | Ctrl+Shift+T |
-| Run the file open in the editor | ⌃⇧R | Ctrl+Shift+F10 |
 
-- **F-keys on a Mac:** if they change the volume or brightness, hold **fn** with them, or turn on "Use F1, F2, etc. keys as standard function keys" in macOS keyboard settings.
-- **If Esc doesn't leave the terminal:** check Settings → Tools → Terminal → **Move focus to the Editor with**. It should be Escape.
+On a Mac, if F12 changes the volume, hold **fn** with it.
 
 ## The daily loop
 
@@ -63,7 +58,7 @@ l session --hours 2                  # 1. first thing: start today's entry in th
 s                                    # 2. get your mentor's latest feedback
 
 l ex 2-1 "Simple Message"            # 3. new file: exercises/ex_2_1_simple_message.py
-#                                       4. write it, run it (⌃⇧R / Ctrl+Shift+F10), fix it
+#                                       4. write it, run it (PyCharm's Run button), fix it
 l done 2-1                           # 5. tick it off. Repeat 3–5 for each exercise.
 
 s                                    # 6. last thing: save and share
