@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# sync: save your work and swap updates with GitHub, in one step.
+# sync: get your mentor's feedback and submit your progress, in one step.
 #
-#   bin/sync                    commit, pull your mentor's changes, push
+#   bin/sync                    get your mentor's feedback, submit your progress
 #   bin/sync "finished ch 4"    same, with your own commit message
 #   bin/sync --keep-mine        same, but where you and GitHub changed the same lines
 #                               of a code file, keep your version of those lines

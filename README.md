@@ -7,7 +7,7 @@ My path from first line of code to mid-level Python developer. Each chapter I st
 Two shortcuts do all the bookkeeping:
 
 - **`l`** (learn) keeps the chapter logs.
-- **`s`** (sync) saves my work and swaps updates with my mentor on GitHub.
+- **`s`** (sync) gets my mentor's feedback and submits my progress.
 
 ## First-time setup
 
@@ -56,13 +56,13 @@ Start every session with `l session`.
 
 ```bash
 l session --hours 2                  # 1. first thing: start today's entry in the log
-s                                    # 2. get your mentor's latest feedback
+s                                    # 2. get your mentor's feedback and submit your progress
 
 l ex 2-1 "Simple Message"            # 3. new file: exercises/ex_2_1_simple_message.py
 #                                       4. write it, run it (PyCharm's Run button), fix it
 l done 2-1                           # 5. tick it off. Repeat 3–5 for each exercise.
 
-s                                    # 6. last thing: save and share
+s                                    # 6. last thing: get feedback and submit your progress again
 ```
 
 Before step 6, open the chapter's `LOG.md` and fill in today's session entry: Did, Learned, Confusing, Next time. One line each is enough.
@@ -155,7 +155,7 @@ Commands that change a log use your current chapter unless you add `-c <id>`. Id
 | `l unpark <n> [note]` | Mark a parked item done |
 | `l complete [id] [--force]` | Finish a chapter, after checking for loose ends |
 | `l skip <id> [reason]` | Skip a chapter, such as a project track you didn't pick |
-| `s [message]` | Save, get your mentor's changes, share yours |
+| `s [message]` | Get your mentor's feedback and submit your progress |
 | `s --keep-mine` | Only after a conflict: keep your version of the clashing lines |
 | `bin/install-aliases [--learn x --sync y] [--remove]` | Add or remove the `l` and `s` shortcuts |
 

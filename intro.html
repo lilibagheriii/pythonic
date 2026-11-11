@@ -134,7 +134,7 @@ ol.steps > li > div { min-width: 0; display: grid; gap: 6px; }
     <p class="lede">You run your own learning. Two shortcuts do the bookkeeping, so you can spend your time writing code.</p>
     <div class="keys">
       <div class="key"><kbd>l</kbd><span><b>learn</b>Keeps your chapter logs: exercises, notes, questions, parked items</span></div>
-      <div class="key"><kbd>s</kbd><span><b>sync</b>Saves your work and swaps updates with your mentor on GitHub</span></div>
+      <div class="key"><kbd>s</kbd><span><b>sync</b>Gets your mentor's feedback and submits your progress</span></div>
     </div>
     <p class="aside">Everything here happens in PyCharm, with commands typed in PyCharm's terminal. You install the shortcuts in step 5 below.</p>
   </header>
@@ -189,7 +189,7 @@ ol.steps > li > div { min-width: 0; display: grid; gap: 6px; }
     <ol class="steps">
       <li><span class="what">First thing: start today's entry in the session log</span>
         <div><div class="cmd"><pre>l session --hours 2</pre><button class="copy" type="button">Copy</button></div></div></li>
-      <li><span class="what">Get your mentor's latest feedback</span>
+      <li><span class="what">Get your mentor's feedback and submit your progress</span>
         <div><div class="cmd"><pre>s</pre><button class="copy" type="button">Copy</button></div></div></li>
       <li><span class="what">Create a file for the next exercise <small>(number and title from the book)</small></span>
         <div><div class="cmd"><pre>l ex 2-1 "Simple Message"</pre><button class="copy" type="button">Copy</button></div>
@@ -200,7 +200,7 @@ ol.steps > li > div { min-width: 0; display: grid; gap: 6px; }
         <div><div class="cmd"><pre>l done 2-1</pre><button class="copy" type="button">Copy</button></div></div></li>
       <li><span class="what">Before you stop, open the chapter's <code>LOG.md</code> and fill in today's entry</span>
         <div><p class="aside">Did, Learned, Confusing, Next time. One line each is enough.</p></div></li>
-      <li><span class="what">Save and share</span>
+      <li><span class="what">Last thing: get feedback and submit your progress again</span>
         <div><div class="cmd"><pre>s</pre><button class="copy" type="button">Copy</button></div></div></li>
     </ol>
   </section>
@@ -319,7 +319,7 @@ Phase 0 · Foundations (sprint: Tue Nov 10 – Sat Nov 14, 8h/day)
         <tr><td>l parked</td><td>List everything still parked</td></tr>
         <tr><td>l unpark &lt;n&gt; [note]</td><td>Mark a parked item done</td></tr>
         <tr class="group"><td colspan="2">Saving and sharing</td></tr>
-        <tr><td>s [message]</td><td>Save, get your mentor's changes, share yours</td></tr>
+        <tr><td>s [message]</td><td>Get your mentor's feedback and submit your progress</td></tr>
         <tr><td>s --keep-mine</td><td>Only after a conflict: keep your version of the clashing lines</td></tr>
         <tr><td>bin/install-aliases [--remove]</td><td>Add or remove the <code>l</code> and <code>s</code> shortcuts</td></tr>
       </tbody>
