@@ -160,8 +160,8 @@ ol.steps > li > div { min-width: 0; display: grid; gap: 6px; }
       <li><span class="what">Check the connection to GitHub <small>(it should end with “✓ In sync.”)</small></span>
         <div><div class="cmd"><pre>s</pre><button class="copy" type="button">Copy</button></div>
         <p class="aside">If it says you don't have access, ask your mentor to check your access to the repo on GitHub.</p></div></li>
-      <li><span class="what">Start your first chapter</span>
-        <div><div class="cmd"><pre>l start pcc-00</pre><button class="copy" type="button">Copy</button></div></div></li>
+      <li><span class="what">Start your first session</span>
+        <div><div class="cmd"><pre>l session pcc-00</pre><button class="copy" type="button">Copy</button></div></div></li>
     </ol>
     <p class="aside"><b>On Windows:</b> the scripts need Git Bash. Set Settings → Tools → Terminal → Shell path to Git Bash (usually <code>C:\Program Files\Git\bin\bash.exe</code>), then open a new terminal tab.</p>
   </section>
@@ -184,11 +184,11 @@ ol.steps > li > div { min-width: 0; display: grid; gap: 6px; }
   <section aria-labelledby="h-loop">
     <div class="sec-head">
       <h2 id="h-loop">Every study session</h2>
-      <p>The same loop, every time, starting with <code>l session</code>. Steps 3 to 5 repeat for each exercise in the chapter. Moving to a new chapter? Run <code>l start &lt;id&gt;</code> first, so the session is logged in the new chapter.</p>
+      <p>The same loop, every time, starting with <code>l session</code> and the chapter you're working on. Steps 3 to 5 repeat for each exercise in the chapter. Same chapter as last time? Leave out the id: <code>l session --hours 2</code>.</p>
     </div>
     <ol class="steps">
-      <li><span class="what">First thing: start today's entry in the session log</span>
-        <div><div class="cmd"><pre>l session --hours 2</pre><button class="copy" type="button">Copy</button></div></div></li>
+      <li><span class="what">First thing: pick today's chapter and start its log entry</span>
+        <div><div class="cmd"><pre>l session pcc-02 --hours 2</pre><button class="copy" type="button">Copy</button></div></div></li>
       <li><span class="what">Get your mentor's feedback and submit your progress</span>
         <div><div class="cmd"><pre>s</pre><button class="copy" type="button">Copy</button></div></div></li>
       <li><span class="what">Create a file for the next exercise <small>(number and title from the book)</small></span>
@@ -307,7 +307,7 @@ Phase 0 · Foundations (sprint: Tue Nov 10 – Sat Nov 14, 8h/day)
         <tr><td>l complete [--force]</td><td>Finish the chapter, after checking for loose ends</td></tr>
         <tr><td>l skip &lt;id&gt; [reason]</td><td>Skip a chapter, such as a project track you didn't pick</td></tr>
         <tr class="group"><td colspan="2">Doing the work</td></tr>
-        <tr><td>l session [--hours N]</td><td>Add today's entry to the session log</td></tr>
+        <tr><td>l session [id] [--hours N]</td><td>Pick today's chapter (optional) and start today's entry in its log</td></tr>
         <tr><td>l ex &lt;id&gt; [title]</td><td>Create an exercise file and add it to the checklist</td></tr>
         <tr><td>l done &lt;id&gt;</td><td>Tick off an exercise</td></tr>
         <tr><td>l note &lt;text&gt;</td><td>Add a remark</td></tr>

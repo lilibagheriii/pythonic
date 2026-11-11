@@ -158,7 +158,7 @@ def current_chapter(args, create=False):
         return ch
     if CURRENT_FILE.exists() and CURRENT_FILE.read_text().strip():
         return find_chapter(CURRENT_FILE.read_text().strip())
-    die("no current chapter yet. Run `bin/learn start <id>`, or pass -c <id>.")
+    die("no chapter picked yet. Start today with `bin/learn session <id>`, e.g. `bin/learn session pcc-00`.")
 
 
 # ---------------------------------------------------------------- LOG.md editing
@@ -375,7 +375,12 @@ def cmd_questions(args):
 
 
 def cmd_session(args):
-    ch = current_chapter(args, create=True)
+    if args.id:
+        cmd_start(argparse.Namespace(id=args.id))   # pick the chapter first, then log the session in it
+        print()
+        ch = find_chapter(args.id)
+    else:
+        ch = current_chapter(args, create=True)
     hours = f" ({args.hours}h)" if args.hours else ""
     entry = "\n".join([
         f"### {today()}{hours}",
@@ -495,8 +500,9 @@ def main():
     p.add_argument("id", help="exercise number from the book, e.g. 4-3")
     p.add_argument("title", nargs="*", help="exercise title, e.g. Counting to Twenty")
     add("done", cmd_done, "tick off an exercise", [chapter_opt]).add_argument("id")
-    add("session", cmd_session, "add today's session entry to fill in", [chapter_opt]).add_argument(
-        "--hours", type=float, help="hours studied today")
+    p = add("session", cmd_session, "start today's session: pick the chapter and add an entry to fill in", [chapter_opt])
+    p.add_argument("id", nargs="?", help="chapter to work on today; it becomes the current chapter (default: current)")
+    p.add_argument("--hours", type=float, help="hours studied today")
     add("note", cmd_note, "add a remark", [chapter_opt]).add_argument("text", nargs="+")
     add("ask", cmd_ask, "log a question for your mentor", [chapter_opt]).add_argument("text", nargs="+")
     p = add("answered", cmd_answered, "mark open question <n> as answered", [chapter_opt])

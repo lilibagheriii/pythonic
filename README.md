@@ -35,7 +35,7 @@ The repo is already cloned and connected to GitHub. Do these once, in order.
    s
    ```
    If it says you don't have access, ask your mentor to check your access to the repo on GitHub.
-7. **Start your first chapter:** `l start pcc-00`
+7. **Start your first session:** `l session pcc-00`
 
 **On Windows:** the scripts need Git Bash. Set Settings → Tools → Terminal → **Shell path** to Git Bash (usually `C:\Program Files\Git\bin\bash.exe`), then open a new terminal tab.
 
@@ -52,10 +52,10 @@ On a Mac, if F12 changes the volume, hold **fn** with it.
 
 ## The daily loop
 
-Start every session with `l session`.
+Start every session with `l session` and the chapter you're working on.
 
 ```bash
-l session --hours 2                  # 1. first thing: start today's entry in the log
+l session pcc-02 --hours 2           # 1. first thing: pick today's chapter and start its log entry
 s                                    # 2. get your mentor's feedback and submit your progress
 
 l ex 2-1 "Simple Message"            # 3. new file: exercises/ex_2_1_simple_message.py
@@ -67,7 +67,7 @@ s                                    # 6. last thing: get feedback and submit yo
 
 Before step 6, open the chapter's `LOG.md` and fill in today's session entry: Did, Learned, Confusing, Next time. One line each is enough.
 
-**Moving to a new chapter?** Run `l start <id>` before `l session`, so the session is logged in the new chapter.
+**Same chapter as last time?** Leave out the id: `l session --hours 2`. The chapter you name becomes your current chapter, so every command after it works on that chapter.
 
 Type the book's examples out by hand. Copy-pasting skips the part where you learn.
 
@@ -100,13 +100,13 @@ Phase 0 · Foundations (sprint: Tue Nov 10 – Sat Nov 14, 8h/day)
 
 1. Fill in the **Retro** at the bottom of the chapter's `LOG.md`.
 2. Run `l complete`. If exercises, parked items or the retro are unfinished, it lists them and stops. Finish them, or agree with your mentor to move on and use `l complete --force`. Parked items stay listed, so nothing gets lost.
-3. It tells you the next chapter. Run `l start <id>`.
+3. It tells you the next chapter. Pick it at the start of your next session: `l session <id>`.
 
 Phase 1 has three project tracks and you pick two. Mark each chapter of the track you skip, for example `l skip pcc-12 "picked data and web tracks"`.
 
 ## Chapter logs
 
-A chapter's folder and `LOG.md` appear the first time you run `l start <id>`. Until then the chapter exists only in `curriculum.json` and `l status`. Each log is created from [templates/LOG.md](templates/LOG.md) as it is at that moment, so your mentor can change the template as you go and every chapter started afterwards gets the new format. A project can have its own template in `templates/LOG.project.md`.
+A chapter's folder and `LOG.md` appear the first time you pick it with `l session <id>` (or `l start <id>`). Until then the chapter exists only in `curriculum.json` and `l status`. Each log is created from [templates/LOG.md](templates/LOG.md) as it is at that moment, so your mentor can change the template as you go and every chapter started afterwards gets the new format. A project can have its own template in `templates/LOG.project.md`.
 
 | Section | What goes there | Written by |
 |---|---|---|
@@ -141,7 +141,7 @@ Commands that change a log use your current chapter unless you add `-c <id>`. Id
 
 | Command | What it does |
 |---|---|
-| `l session [--hours N]` | Start today's entry in the session log |
+| `l session [id] [--hours N]` | Pick today's chapter (optional) and start today's entry in its session log |
 | `l status [phase]` | Every chapter with its progress |
 | `l start <id>` | Make a chapter current, creating its log from the template the first time |
 | `l ex <id> [title]` | Create an exercise file and add it to the checklist |
@@ -168,7 +168,7 @@ pythonic/
 ├── curriculum.json            every phase and chapter, in order
 ├── bin/                       learn, sync, install-aliases
 ├── templates/                 LOG.md (new chapter logs) and exercise.py (new exercise files)
-└── phase-0-foundations/       appears with your first `l start`
+└── phase-0-foundations/       appears with your first `l session <id>`
     ├── pcc-00-setup-and-git/
     │   ├── LOG.md
     │   └── exercises/         appears with your first `l ex`
