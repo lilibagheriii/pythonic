@@ -50,6 +50,8 @@ Keep the code in the editor and the commands in the terminal, and move between t
 
 On a Mac, if F12 changes the volume, hold **fn** with it.
 
+More PyCharm shortcuts (running, editing, finding things) and the most-used `l` and `s` commands are in [SHORTCUTS.md](SHORTCUTS.md).
+
 ## The daily loop
 
 Start every session with `l session` and the chapter you're working on.
@@ -168,7 +170,7 @@ Commands that change a log use your current chapter unless you add `-c <id>`. Id
 
 ```
 pythonic/
-├── README.md  PLAN.md  MENTOR.md
+├── README.md  PLAN.md  MENTOR.md  SHORTCUTS.md
 ├── intro.html  career-roadmap.html
 ├── curriculum.json            every phase and chapter, in order
 ├── bin/                       learn, sync, install-aliases
