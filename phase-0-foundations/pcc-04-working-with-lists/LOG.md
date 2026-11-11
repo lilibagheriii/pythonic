@@ -40,7 +40,7 @@ _None yet._
 
 ## Mentor feedback
 <!-- Written by the mentor, here or in pull request reviews. -->
-_None yet._
+- 2026-11-11: When the book exercises are done, try [CHALLENGE-titanic.md](CHALLENGE-titanic.md): real Kaggle data, only lists and loops.
 
 ## Retro
 <!-- Fill this in before `l complete`. -->
