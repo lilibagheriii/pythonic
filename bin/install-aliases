@@ -93,4 +93,10 @@ if [ "$had_block" -eq 1 ]; then verb="Updated"; else verb="Added"; fi
 echo "✓ $verb shortcuts in $rc (backup: $rc.bak):"
 echo "    $learn_alias  →  $repo/bin/learn"
 echo "    $sync_alias  →  $repo/bin/sync"
-echo "  Open a new terminal (or run: source $rc), then try:  $learn_alias status"
+short_rc="${rc/#$HOME/~}"
+echo
+echo "  This terminal doesn't know them yet. To use them here right away, run:"
+echo
+echo "      source $short_rc"
+echo
+echo "  (Or close this terminal and open a new one.) Then try:  $learn_alias status"

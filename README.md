@@ -26,8 +26,9 @@ The repo is already cloned and connected to GitHub. Do these once, in order.
 5. **Install the shortcuts**, still in that terminal:
    ```bash
    bin/install-aliases          # l = learn, s = sync
+   source ~/.zshrc              # Windows (Git Bash): source ~/.bashrc
    ```
-   Then open a **new terminal tab** (**⌘T** on Mac, **Ctrl+Shift+T** on Windows). From now on `l` and `s` work in every PyCharm terminal and in any folder.
+   The second line loads the shortcuts into the terminal you're in. Without it, they only work after you close the terminal and open it again. From now on `l` and `s` work in every PyCharm terminal and in any folder.
    If a letter is already taken on your machine, the script says so. Pick others with `bin/install-aliases --learn j --sync y`. Undo with `bin/install-aliases --remove`, and re-run it if you move the repo.
 6. **Check the connection to GitHub.** This should end with "✓ In sync.":
    ```bash
