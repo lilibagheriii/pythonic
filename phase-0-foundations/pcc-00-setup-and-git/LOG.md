@@ -1,7 +1,7 @@
-# pcc-03 · Introducing Lists
+# pcc-00 · Setup and Git
 
 **Book:** Python Crash Course, 3rd ed. (Eric Matthes)
-**Reading:** Chapter 3
+**Reading:** Appendix A Installation, Appendix B Text Editors and IDEs (we use PyCharm instead of the book's VS Code), Appendix D Using Git
 **Phase:** Phase 0 · Foundations (sprint: Tue Nov 10 – Sat Nov 14, 8h/day)
 **Status:** in-progress
 **Started:** 2026-11-11
@@ -11,15 +11,24 @@
 
 ## Goals
 <!-- What should I be able to do when this is finished? Rewrite these in your own words if it helps. -->
-- [ ] Add, remove, sort and index list items
+- [ ] Python and PyCharm installed; the project uses the .venv interpreter
+- [ ] Can open, hide and leave PyCharm's terminal with the keyboard (README → Working in PyCharm)
+- [ ] Shortcuts installed; `s` ends with "✓ In sync."
+- [ ] Can explain what a commit is and why we commit small and often
 
 ## Exercises
 <!-- Added by `l ex`. Tick off with `l done <id>`. -->
-- [ ] 3-1 → [ex_3_1.py](exercises/ex_3_1.py)
+_None yet._
 
 ## Session log
 <!-- `l session` adds a dated entry. Fill it in before you stop for the day. -->
 ### 2026-11-11
+- **Did:** 
+- **Learned:** 
+- **Confusing:** 
+- **Next time:** 
+
+### 2026-11-11 (2.0h)
 - **Did:** 
 - **Learned:** 
 - **Confusing:** 
@@ -31,7 +40,7 @@ _None yet._
 
 ## Questions for mentor
 <!-- Tried for 30 minutes first? Say what you tried. `l ask "..."` -->
-- [ ] (2026-11-11) how stupid i am?
+_None yet._
 
 ## Parked
 <!-- Unfinished things to come back to. `l park "..."`, then `l unpark <n>` when it's done. -->
