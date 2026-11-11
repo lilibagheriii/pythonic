@@ -31,7 +31,8 @@ _None yet._
 
 ## Questions for mentor
 <!-- Tried for 30 minutes first? Say what you tried. `l ask "..."` -->
-- [ ] (2026-11-11) how stupid i am?
+- [x] (2026-11-11) how stupid i am? — answered 2026-11-11
+  - **Answer:** NOT! you're so couragous to walk this way, love
 
 ## Parked
 <!-- Unfinished things to come back to. `l park "..."`, then `l unpark <n>` when it's done. -->
