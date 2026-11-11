@@ -24,3 +24,7 @@ guest.append("charles")
 ####
 places= ['"Japan","Italy","Iceland", "Switzerland", "New Zealand"']
 print(sorted(places))
+####
+pizzas = ["pepperoni" , "margarita" , "hawaiian"]
+for pizza in pizzas:
+    print(f'i like {pizza} pizza.')

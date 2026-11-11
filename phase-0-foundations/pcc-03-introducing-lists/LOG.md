@@ -3,9 +3,9 @@
 **Book:** Python Crash Course, 3rd ed. (Eric Matthes)
 **Reading:** Chapter 3
 **Phase:** Phase 0 · Foundations (sprint: Tue Nov 10 – Sat Nov 14, 8h/day)
-**Status:** in-progress
+**Status:** complete
 **Started:** 2026-11-11
-**Completed:** —
+**Completed:** 2026-11-11
 
 > How to work through this log: see [The daily loop](../../README.md#the-daily-loop) in the main README.
 
@@ -15,7 +15,7 @@
 
 ## Exercises
 <!-- Added by `l ex`. Tick off with `l done <id>`. -->
-- [ ] 3-1 → [ex_3_1.py](exercises/ex_3_1.py)
+- [x] 3-1 → [ex_3_1.py](exercises/ex_3_1.py) ✓ 2026-11-11
 
 ## Session log
 <!-- `l session` adds a dated entry. Fill it in before you stop for the day. -->
