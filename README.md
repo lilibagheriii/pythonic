@@ -62,10 +62,12 @@ l ex 2-1 "Simple Message"            # 3. new file: exercises/ex_2_1_simple_mess
 #                                       4. write it, run it (PyCharm's Run button), fix it
 l done 2-1                           # 5. tick it off. Repeat 3–5 for each exercise.
 
-s                                    # 6. last thing: get feedback and submit your progress again
+l next                               # 6. only when the chapter is finished: close it and move to the next one
+
+s                                    # 7. last thing: get feedback and submit your progress again
 ```
 
-Before step 6, open the chapter's `LOG.md` and fill in today's session entry: Did, Learned, Confusing, Next time. One line each is enough.
+Before step 7, open the chapter's `LOG.md` and fill in today's session entry: Did, Learned, Confusing, Next time. One line each is enough. If you're running step 6, fill in the chapter's **Retro** first (see [Finishing a chapter](#finishing-a-chapter)).
 
 **Same chapter as last time?** Leave out the id: `l session --hours 2`. The chapter you name becomes your current chapter, so every command after it works on that chapter.
 
@@ -99,8 +101,10 @@ Phase 0 · Foundations (sprint: Tue Nov 10 – Sat Nov 14, 8h/day)
 ## Finishing a chapter
 
 1. Fill in the **Retro** at the bottom of the chapter's `LOG.md`.
-2. Run `l complete`. If exercises, parked items or the retro are unfinished, it lists them and stops. Finish them, or agree with your mentor to move on and use `l complete --force`. Parked items stay listed, so nothing gets lost.
-3. It tells you the next chapter. Pick it at the start of your next session: `l session <id>`.
+2. Run `l next`. It closes the chapter and makes the next one current, so your next `l session` (no id needed) carries on there.
+   If exercises, parked items or the retro are unfinished, it lists them and stops. Finish them, or agree with your mentor to move on and use `l next --force`. Parked items stay listed, so nothing gets lost.
+
+`l complete` closes a chapter without moving on, for example to finish a side log.
 
 Phase 1 has three project tracks and you pick two. Mark each chapter of the track you skip, for example `l skip pcc-12 "picked data and web tracks"`.
 
@@ -153,7 +157,8 @@ Commands that change a log use your current chapter unless you add `-c <id>`. Id
 | `l park <text>` | Set something aside to finish later |
 | `l parked` | List everything still parked |
 | `l unpark <n> [note]` | Mark a parked item done |
-| `l complete [id] [--force]` | Finish a chapter, after checking for loose ends |
+| `l next [--force]` | Close the current chapter, after checking for loose ends, and move to the next one |
+| `l complete [id] [--force]` | Close a chapter without moving on |
 | `l skip <id> [reason]` | Skip a chapter, such as a project track you didn't pick |
 | `s [message]` | Get your mentor's feedback and submit your progress |
 | `s --keep-mine` | Only after a conflict: keep your version of the clashing lines |

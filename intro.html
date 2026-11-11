@@ -198,6 +198,9 @@ ol.steps > li > div { min-width: 0; display: grid; gap: 6px; }
         <div><p class="aside">Type the book's examples out by hand. Copy-pasting skips the part where you learn.</p></div></li>
       <li><span class="what">Tick it off when it works</span>
         <div><div class="cmd"><pre>l done 2-1</pre><button class="copy" type="button">Copy</button></div></div></li>
+      <li><span class="what">Only when the chapter is finished: close it and move to the next one</span>
+        <div><div class="cmd"><pre>l next</pre><button class="copy" type="button">Copy</button></div>
+        <p class="aside">Fill in the chapter's Retro first. Your next <code>l session</code> then carries on in the new chapter, with no id needed. See <a href="#h-finish">Finishing a chapter</a>.</p></div></li>
       <li><span class="what">Before you stop, open the chapter's <code>LOG.md</code> and fill in today's entry</span>
         <div><p class="aside">Did, Learned, Confusing, Next time. One line each is enough.</p></div></li>
       <li><span class="what">Last thing: get feedback and submit your progress again</span>
@@ -251,12 +254,11 @@ Phase 0 · Foundations (sprint: Tue Nov 10 – Sat Nov 14, 8h/day)
     <ol class="steps">
       <li><span class="what">Fill in the Retro at the bottom of the chapter's <code>LOG.md</code></span>
         <div><p class="aside">What clicked, what's still fuzzy, and how you'd explain the main idea to a beginner.</p></div></li>
-      <li><span class="what">Mark it complete</span>
-        <div><div class="cmd"><pre>l complete</pre><button class="copy" type="button">Copy</button></div>
-        <p class="aside">If exercises, parked items or the retro are unfinished, it lists them and stops. Finish them, or agree with your mentor to move on and use <code>l complete --force</code>.</p></div></li>
-      <li><span class="what">Pick the chapter it suggests at the start of your next session</span>
-        <div><div class="cmd"><pre>l session pcc-03</pre><button class="copy" type="button">Copy</button></div></div></li>
+      <li><span class="what">Close it and move to the next chapter</span>
+        <div><div class="cmd"><pre>l next</pre><button class="copy" type="button">Copy</button></div>
+        <p class="aside">If exercises, parked items or the retro are unfinished, it lists them and stops. Finish them, or agree with your mentor to move on and use <code>l next --force</code>. Parked items stay listed, so nothing gets lost.</p></div></li>
     </ol>
+    <p class="aside"><code>l complete</code> closes a chapter without moving on, for example to finish a side log.</p>
   </section>
 
   <section aria-labelledby="h-log">
@@ -304,7 +306,8 @@ Phase 0 · Foundations (sprint: Tue Nov 10 – Sat Nov 14, 8h/day)
         <tr class="group"><td colspan="2">Chapters</td></tr>
         <tr><td>l status [phase]</td><td>Every chapter with its progress</td></tr>
         <tr><td>l start &lt;id&gt;</td><td>Make a chapter current and mark it in progress</td></tr>
-        <tr><td>l complete [--force]</td><td>Finish the chapter, after checking for loose ends</td></tr>
+        <tr><td>l next [--force]</td><td>Close the chapter, after checking for loose ends, and move to the next one</td></tr>
+        <tr><td>l complete [--force]</td><td>Close a chapter without moving on</td></tr>
         <tr><td>l skip &lt;id&gt; [reason]</td><td>Skip a chapter, such as a project track you didn't pick</td></tr>
         <tr class="group"><td colspan="2">Doing the work</td></tr>
         <tr><td>l session [id] [--hours N]</td><td>Pick today's chapter (optional) and start today's entry in its log</td></tr>

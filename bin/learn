@@ -396,6 +396,10 @@ def cmd_session(args):
 def cmd_complete(args):
     ch = find_chapter(args.id) if args.id else current_chapter(args)
     text = ch.read()
+    if getattr(args, "move_on", False) and get_field(text, "Status") == "complete":
+        chapters = load_chapters()
+        after = chapters[[c.id for c in chapters].index(ch.id) + 1:]
+        return next((c for c in after if counts(c)["status"] == "not-started"), None)
     problems = []
     open_ex = [strip_checkbox(l) for _, done, l in checkbox_items(text, "exercises") if not done]
     open_parked = [strip_checkbox(l) for _, done, l in checkbox_items(text, "parked") if not done]
@@ -425,8 +429,23 @@ def cmd_complete(args):
     chapters = load_chapters()
     after = chapters[[c.id for c in chapters].index(ch.id) + 1:]
     upcoming = next((c for c in after if counts(c)["status"] == "not-started"), None)
+    if getattr(args, "move_on", False):
+        return upcoming
     if upcoming:
-        print(f"Next up: {upcoming.id} · {upcoming.title}. Run `bin/learn start {upcoming.id}`.")
+        print(f"Next up: {upcoming.id} · {upcoming.title}. Pick it at the start of your next session: `bin/learn session {upcoming.id}`.")
+    return upcoming
+
+
+def cmd_next(args):
+    """Close the current chapter (same checks as complete) and move to the next one."""
+    args.id = None
+    args.move_on = True
+    upcoming = cmd_complete(args)
+    if not upcoming:
+        print("That was the last chapter in curriculum.json. Nothing left to start.")
+        return
+    print()
+    cmd_start(argparse.Namespace(id=upcoming.id))
 
 
 def cmd_skip(args):
@@ -517,6 +536,8 @@ def main():
     p = add("complete", cmd_complete, "mark a chapter complete (checks for loose ends first)", [chapter_opt])
     p.add_argument("id", nargs="?", help="chapter id (default: current)")
     p.add_argument("--force", action="store_true", help="complete even with loose ends")
+    p = add("next", cmd_next, "close the current chapter and move to the next one", [chapter_opt])
+    p.add_argument("--force", action="store_true", help="close it even with loose ends")
     p = add("skip", cmd_skip, "mark a chapter skipped, e.g. a project track you didn't pick")
     p.add_argument("id")
     p.add_argument("reason", nargs="*")
