@@ -6,7 +6,7 @@ A short list to keep open while you work. Start with the first two of each secti
 
 These are PyCharm's default keyboard shortcuts. On a Mac, if an F-key changes the volume or brightness, hold **fn** with it.
 
-### Terminal
+### Terminal and windows
 
 | What | Mac | Windows / Linux |
 |---|---|---|
@@ -14,6 +14,7 @@ These are PyCharm's default keyboard shortcuts. On a Mac, if an F-key changes th
 | Back to the editor, terminal stays open | Esc | Esc |
 | Hide the terminal and go back to the editor | ⇧Esc | Shift+Esc |
 | New terminal tab | ⌘T | Ctrl+Shift+T |
+| Hide every panel except the editor (press again to bring them back) | ⇧⌘F12 | Ctrl+Shift+F12 |
 
 ### Running code
 
