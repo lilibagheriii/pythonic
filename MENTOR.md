@@ -50,6 +50,22 @@ You can also edit a lab's `README.md` and `starter/` directly. Changes reach stu
 
 **Answer keys don't go in the repo**, because the student can read everything in it.
 
+## Adding lecture notes
+
+Lecture notes belong to a phase. They live in that phase's `lectures/` folder as Markdown files, read in file-name order, so number them: `01-how-the-web-works.md`, `02-http-and-apis.md`. A file's first `# ` heading is its title. Images and other files can sit next to them, in `lectures/images/` for example. Nothing goes in `curriculum.json`: the folder is the list.
+
+Each lecture has an id, `<phase>.<number>`: `1.2` is `phase-1-build/lectures/02-http-and-apis.md`. `bin/learn lectures` lists them with their ids.
+
+```bash
+bin/learn lecture new "How the web works" --phase 1   # creates the next one, e.g. 1.3 = lectures/03-how-the-web-works.md
+bin/learn lecture edit 1.3                            # opens it in your editor
+```
+
+- **`lecture new <subject>`** starts a lecture from `templates/lecture.md` with the title, phase and date filled in. It names the file with the next number and creates the phase's `lectures/` folder if needed. It uses the student's current phase unless you pass `--phase N`. Edit `templates/lecture.md` to change what new lectures start with.
+- **`lecture edit <id>`** opens a lecture in your command-line editor, right in the terminal, and returns when you close it. It uses `$VISUAL`, then `$EDITOR`, then git's `core.editor`, then the first of `nano`, `vim` or `vi` it finds. To pick one, add `export EDITOR=nano` (or `vim`) to your shell's startup file. Besides the full id, it takes a number in the student's current phase (`2`) or part of the file name (`http`).
+
+Run `bin/sync` when a lecture is ready. The student sees lectures with `bin/learn lectures`, and `bin/learn status` shows how many each phase has.
+
 ## Where to give feedback
 
 - **Phase 0:** the student commits straight to `main`. Write feedback in the **Mentor feedback** section of the chapter's `LOG.md`, then run `bin/sync "Mentor feedback on pcc-04"`. The student gets it on their next `bin/sync`. Logs merge automatically even if you both edited the same one, so keep feedback in `LOG.md` and leave their code files alone. Suggest code changes in the log or in a pull request instead.

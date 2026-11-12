@@ -7,8 +7,11 @@ Uses only the standard library, so it works on Python 3.8 and newer.
 import argparse
 import datetime
 import json
+import os
 import re
+import shlex
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -575,6 +578,9 @@ def cmd_status(args):
         if ch.phase["title"] != phase_title:
             phase_title = ch.phase["title"]
             print(f"\n{phase_title}")
+            phase_lectures = lectures(ch.phase)
+            if phase_lectures:
+                print(f"   Lectures: {len(phase_lectures)} in {ch.phase['dir']}/lectures/ (see `bin/learn lectures`)")
         if ch.kind == "lab" and labs_heading_for != phase_title:
             labs_heading_for = phase_title
             print("   Labs (optional, real-world walkthroughs from your mentor)")
@@ -860,6 +866,134 @@ def cmd_lab_edit(args):
     print("  Run `bin/sync` to send it to the learner.")
 
 
+# ---------------------------------------------------------------- lectures
+# Lecture notes belong to a phase, not a chapter: <phase dir>/lectures/*.md, in file-name
+# order (number them: 01-..., 02-...). Images and other files can sit next to them.
+# Nothing is listed in curriculum.json; the folder is the list.
+
+def lectures(phase):
+    folder = ROOT / phase["dir"] / "lectures"
+    if not folder.is_dir():
+        return []
+    return sorted(p for p in folder.glob("*.md") if p.is_file())
+
+
+def cmd_lectures(args):
+    phases = load_curriculum()["phases"]
+    if args.phase is not None:
+        phases = [phases[phase_index(phases, args.phase)]]
+    found = 0
+    for phase in phases:
+        files = lectures(phase)
+        if not files:
+            continue
+        print(f"\n{phase['title']}")
+        for path in files:
+            print(f"  {lecture_id(phase, path):<6} {readme_title_of(path):<44} {rel(path)}")
+        found += len(files)
+    if not found:
+        print("No lectures yet.")
+
+
+def readme_title_of(path):
+    """A Markdown file's first # heading, else its name without the number prefix."""
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.startswith("# "):
+            return line[2:].strip()
+    return re.sub(r"^\d+[-_ ]*", "", path.stem).replace("-", " ").replace("_", " ").capitalize()
+
+
+def cmd_lecture_new(args):
+    """Mentor: start a new lecture from templates/lecture.md as the next numbered file in a phase."""
+    subject = " ".join(args.subject).strip()
+    slug = slugify(subject)
+    if not slug:
+        die("give the lecture a subject, e.g. `lecture new \"How the web works\"`.")
+    phases = load_curriculum()["phases"]
+    index = phase_index(phases, args.phase) if args.phase is not None else current_phase(load_chapters())
+    phase = phases[index]
+    folder = ROOT / phase["dir"] / "lectures"
+    existing = lectures(phase)
+    for path in existing:
+        if re.sub(r"^\d+[-_ ]*", "", path.stem) == slug:
+            die(f"{rel(path)} is already about that. Edit it, or pick another subject.")
+    numbers = [int(m.group()) for m in (re.match(r"\d+", p.name) for p in existing) if m]
+    number = max(numbers, default=0) + 1
+    path = folder / f"{number:02d}-{slug}.md"
+    template = TEMPLATE_DIR / "lecture.md"
+    title = subject[0].upper() + subject[1:]
+    text = (fill(template.read_text(encoding="utf-8"), {"title": title, "phase": phase["title"], "date": today()})
+            if template.exists() else f"# {title}\n")
+    folder.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+    print(f"created {lecture_id(phase, path)} · {rel(path)}" + (f" from {rel(template)}" if template.exists() else ""))
+    print(f"  Write it with `bin/learn lecture edit {lecture_id(phase, path)}`, then run `bin/sync` to send it to the learner.")
+
+
+def phase_number(phase):
+    return int(re.match(r"phase-(\d+)", phase["dir"]).group(1))
+
+
+def lecture_id(phase, path):
+    """'1.2' for phase-1-*/lectures/02-*.md; a lecture without a number uses its name instead."""
+    match = re.match(r"\d+", path.name)
+    return f"{phase_number(phase)}.{int(match.group()) if match else path.stem}"
+
+
+def find_lecture(wanted, phase_arg=None):
+    """A lecture by id ('1.2'), by number in the current phase ('2'), or by part of its name ('http')."""
+    phases = load_curriculum()["phases"]
+    every = [(ph, path) for ph in phases for path in lectures(ph)]
+    if phase_arg is not None:
+        every = [(ph, path) for ph, path in every if phase_number(ph) == phase_arg]
+    wanted = wanted.strip().lower()
+    if re.fullmatch(r"\d+", wanted):
+        number = phase_arg if phase_arg is not None else phase_number(phases[current_phase(load_chapters())])
+        wanted = f"{number}.{int(wanted)}"
+    matches = [(ph, path) for ph, path in every if lecture_id(ph, path) == wanted]
+    if not matches:
+        matches = [(ph, path) for ph, path in every if wanted in path.stem.lower()]
+    if len(matches) == 1:
+        return matches[0]
+    if matches:
+        die(f"'{wanted}' matches several lectures: "
+            + ", ".join(f"{lecture_id(ph, path)} ({path.name})" for ph, path in matches))
+    die(f"no lecture '{wanted}'. See the ids with `bin/learn lectures`.")
+
+
+def terminal_editor():
+    """The command-line editor to use: $VISUAL, $EDITOR, git's core.editor, then nano, vim or vi."""
+    editor = os.environ.get("VISUAL") or os.environ.get("EDITOR")
+    if not editor:
+        try:
+            editor = subprocess.run(["git", "config", "core.editor"], cwd=ROOT,
+                                    capture_output=True, text=True).stdout.strip()
+        except OSError:
+            editor = ""
+    if not editor:
+        editor = next((name for name in ("nano", "vim", "vi") if shutil.which(name)), "")
+    return editor
+
+
+def open_in_editor(path, editor):
+    """Open path in a command-line editor, in this terminal, and wait until it's closed."""
+    try:
+        return subprocess.call(shlex.split(editor) + [str(path)])
+    except (OSError, ValueError) as error:
+        die(f"couldn't start '{editor}' ({error}). Set $EDITOR to an editor you have, e.g. `export EDITOR=nano`.")
+
+
+def cmd_lecture_edit(args):
+    """Mentor: open a lecture in your editor."""
+    phase, path = find_lecture(args.id, args.phase)
+    editor = terminal_editor()
+    if not editor:
+        die(f"no command-line editor found. Set one with `export EDITOR=nano`, or open {rel(path)} yourself.")
+    print(f"opening {lecture_id(phase, path)} · {readme_title_of(path)}  ({rel(path)}) in {editor}", flush=True)
+    if open_in_editor(path, editor):
+        die(f"the editor exited with an error. The file is {rel(path)}.")
+
+
 # ---------------------------------------------------------------- CLI
 
 def main():
@@ -950,6 +1084,27 @@ def main():
     p.add_argument("--goal", action="append", help="replaces the goals (repeat for more)")
     p.add_argument("--no-goals", action="store_true", help="go back to the default goals")
     p.add_argument("--phase", type=int, help="move it to another phase (only before the learner starts it)")
+    add("lectures", cmd_lectures, "list the lecture notes, by phase").add_argument(
+        "phase", nargs="?", type=int, help="show only this phase number")
+    # Mentor-only, left out of `-h` like `lab`.
+    lecture = sub.add_parser("lecture", description="mentor: write lecture notes (see `lecture <command> -h`)")
+    lecture_sub = lecture.add_subparsers(dest="lecture_command", metavar="<lecture command>")
+    lecture.set_defaults(func=lambda a: lecture.print_help())
+    p = lecture_sub.add_parser("new", help="start a new lecture from templates/lecture.md",
+                               description="Create the next numbered lecture (e.g. 03-how-the-web-works.md) in "
+                                           "<phase>/lectures/ from templates/lecture.md, with the subject as its "
+                                           "title. Creates lectures/ if the phase doesn't have one yet. The phase "
+                                           "is the learner's current one unless you pass --phase.")
+    p.set_defaults(func=cmd_lecture_new)
+    p.add_argument("subject", nargs="+", help='what it\'s about, e.g. "How the web works"')
+    p.add_argument("--phase", type=int, help="phase number (default: the learner's current phase)")
+    p = lecture_sub.add_parser("edit", help="open a lecture in your editor",
+                               description="Open a lecture in your command-line editor, in this terminal: $VISUAL, "
+                                           "$EDITOR, git's core.editor, else nano, vim or vi. Pick it by id from `lectures` (1.2 = phase 1, lecture 02), "
+                                           "by number in the current phase (2), or by part of its name (http).")
+    p.set_defaults(func=cmd_lecture_edit)
+    p.add_argument("id", help="e.g. 1.2, 2 or http")
+    p.add_argument("--phase", type=int, help="look only in this phase")
 
     args = parser.parse_args()
     if not args.command:

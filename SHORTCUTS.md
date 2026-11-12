@@ -69,3 +69,4 @@ The commands you'll type most, in PyCharm's terminal. The full list is in [READM
 | `l next` | Chapter finished and Retro filled in: close it and move to the next one |
 | `l status` | Where you are across every chapter |
 | `l labs` | Real-world walkthroughs from your mentor, and which ones you're ready for |
+| `l lectures` | Your mentor's lecture notes for each phase |
