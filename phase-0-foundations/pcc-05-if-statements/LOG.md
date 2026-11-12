@@ -17,6 +17,7 @@
 <!-- Added by `l ex`. Tick off with `l done <id>`. -->
 - [x] 5-1 → [ex_5_1.py](exercises/ex_5_1.py) ✓ 2026-11-12
 - [x] 5-2 → [ex_5_2.py](exercises/ex_5_2.py) ✓ 2026-11-12
+- [ ] 5-3 → [ex_5_3.py](exercises/ex_5_3.py)
 
 ## Session log
 <!-- `l session` adds a dated entry. Fill it in before you stop for the day. -->
