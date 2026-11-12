@@ -18,6 +18,9 @@
         {"id": "pcc-10", "title": "Files and Exceptions", "ref": "Chapter 10", "goals": ["Read and write files with pathlib", "Handle errors with try/except", "Save and load data as JSON"]},
         {"id": "pcc-11", "title": "Testing Your Code", "ref": "Chapter 11", "goals": ["Write and run a pytest suite that passes", "Use a fixture"]},
         {"id": "proj-mini", "kind": "project", "title": "Mini Project", "ref": "Saturday Nov 14: build ~6h, demo 1h, retro and Phase 1 planning 1h", "goals": ["Student picks and scopes it (e.g. a command-line tracker that saves to JSON)", "Has tests that pass", "README explains how to run it", "Demoed to mentor and signed off", "Phase 1 project tracks chosen and first weekly goals written"]}
+      ],
+      "labs": [
+        {"id": "lab-inventory-report", "title": "Inventory Restock Report: Commenting Exercise", "source": "inventory-report"}
       ]
     },
     {
