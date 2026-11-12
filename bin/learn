@@ -8,6 +8,7 @@ import argparse
 import datetime
 import json
 import re
+import shutil
 import sys
 from pathlib import Path
 
@@ -15,6 +16,8 @@ ROOT = Path(__file__).resolve().parent.parent
 CURRICULUM_FILE = ROOT / "curriculum.json"
 CURRENT_FILE = ROOT / ".current-chapter"
 TEMPLATE_DIR = ROOT / "templates"
+JUNK = shutil.ignore_patterns(".git", ".idea", ".venv", "venv", "__pycache__", "*.pyc", ".DS_Store",
+                              ".pytest_cache", ".ipynb_checkpoints")
 
 SECTIONS = {
     "exercises": "## Exercises",
@@ -62,15 +65,29 @@ def fill(template, values):
 # ---------------------------------------------------------------- chapters
 
 class Chapter:
-    def __init__(self, entry, phase):
+    """A chapter, project or lab from curriculum.json.
+
+    Labs are listed under a phase's "labs" and are optional: `next` never moves into one.
+    Each lab is one folder inside its phase, <phase dir>/labs/<source>/: the mentor's
+    README.md (the walkthrough) and starter/ (files the learner gets a copy of), then the
+    learner's LOG.md and exercises/ next to them once the lab is started.
+    """
+
+    def __init__(self, entry, phase, kind=None):
         self.id = entry["id"]
         self.title = entry["title"]
-        self.ref = entry.get("ref", "")
-        self.kind = entry.get("kind", "chapter")
+        self.kind = kind or entry.get("kind", "chapter")
         self.goals = entry.get("goals", [])
         self.book = entry.get("book", phase.get("book", ""))
         self.phase = phase
-        self.dir = ROOT / phase["dir"] / f"{self.id}-{slugify(self.title)}"
+        self.needs = entry.get("needs", "")
+        if self.kind == "lab":
+            self.dir = ROOT / phase["dir"] / "labs" / entry["source"]
+            self.starter = self.dir / "starter"
+            self.ref = entry.get("ref", f"{phase['dir']}/labs/{entry['source']}/README.md")
+        else:
+            self.ref = entry.get("ref", "")
+            self.dir = ROOT / phase["dir"] / f"{self.id}-{slugify(self.title)}"
         self.log = self.dir / "LOG.md"
 
     @property
@@ -99,7 +116,11 @@ class Chapter:
         template = TEMPLATE_DIR / f"LOG.{self.kind}.md"
         if not template.exists():
             template = TEMPLATE_DIR / "LOG.md"
-        goals = self.goals or ["Do every exercise in this reading", "Explain the main idea out loud to the mentor"]
+        if self.kind == "lab":
+            default_goals = ["Work through every step of the walkthrough",
+                             "Explain one finding to the mentor in plain words"]
+        else:
+            default_goals = ["Do every exercise in this reading", "Explain the main idea out loud to the mentor"]
         self.dir.mkdir(parents=True, exist_ok=True)
         self.write(fill(template.read_text(encoding="utf-8"), {
             "id": self.id,
@@ -107,15 +128,87 @@ class Chapter:
             "book": self.book,
             "ref": self.ref,
             "phase": self.phase["title"],
+            "needs": self.needs or "—",
+            "walkthrough": "README.md",
             "goals_heading": "Definition of done" if self.kind == "project" else "Goals",
-            "goals": "\n".join(f"- [ ] {goal}" for goal in goals),
+            "goals": "\n".join(f"- [ ] {goal}" for goal in self.goals or default_goals),
         }))
         print(f"created {rel(self.log)} from {rel(template)}")
+        if self.kind == "lab":
+            self.copy_starter()
+
+    def copy_starter(self):
+        """Copy the lab's starter/ files into the learner's exercises/ folder, next to them."""
+        if not self.starter.is_dir():
+            return
+        shutil.copytree(self.starter, self.work_dir, ignore=JUNK, dirs_exist_ok=True)
+        copied = sorted(p.name for p in self.work_dir.iterdir()) if self.work_dir.exists() else []
+        if copied:
+            print(f"copied starter files into {rel(self.work_dir)}/: {', '.join(copied)}")
+
+
+def load_curriculum():
+    return json.loads(CURRICULUM_FILE.read_text(encoding="utf-8"))
+
+
+def save_curriculum(data):
+    """Write curriculum.json in its hand-edited layout: one chapter or lab per line."""
+    out = ["{", '  "phases": [']
+    for pi, phase in enumerate(data["phases"]):
+        out.append("    {")
+        keys = list(phase)
+        for ki, key in enumerate(keys):
+            comma = "," if ki < len(keys) - 1 else ""
+            value = phase[key]
+            if isinstance(value, list):
+                out.append(f'      "{key}": [')
+                for ei, entry in enumerate(value):
+                    out.append("        " + json.dumps(entry, ensure_ascii=False) + ("," if ei < len(value) - 1 else ""))
+                out.append(f"      ]{comma}")
+            else:
+                out.append(f'      "{key}": {json.dumps(value, ensure_ascii=False)}{comma}')
+        out.append("    }" + ("," if pi < len(data["phases"]) - 1 else ""))
+    out += ["  ]", "}", ""]
+    CURRICULUM_FILE.write_text("\n".join(out), encoding="utf-8")
 
 
 def load_chapters():
-    data = json.loads(CURRICULUM_FILE.read_text(encoding="utf-8"))
-    return [Chapter(entry, phase) for phase in data["phases"] for entry in phase["chapters"]]
+    """Every chapter in order; each phase's labs come after its chapters."""
+    chapters = []
+    for phase in load_curriculum()["phases"]:
+        chapters += [Chapter(entry, phase) for entry in phase["chapters"]]
+        chapters += [Chapter(entry, phase, kind="lab") for entry in phase.get("labs", [])]
+    return chapters
+
+
+def next_chapter(ch, chapters):
+    """Where `next` goes after `ch`. Labs are never picked.
+
+    After a chapter: the first chapter after it that hasn't been started.
+    After a lab: back to the first chapter in progress, else the first one not started.
+    """
+    main = [c for c in chapters if c.kind != "lab"]
+    if ch.kind == "lab":
+        statuses = [(c, counts(c)["status"]) for c in main]
+        return (next((c for c, s in statuses if s == "in-progress"), None)
+                or next((c for c, s in statuses if s == "not-started"), None))
+    after = chapters[[c.id for c in chapters].index(ch.id) + 1:]
+    return next((c for c in after if c.kind != "lab" and counts(c)["status"] == "not-started"), None)
+
+
+def lab_hints(ch, chapters):
+    """Lines to print when `ch` is completed: labs it unlocked, and unfinished labs if its phase is done."""
+    labs = [c for c in chapters if c.kind == "lab" and not c.started]
+    lines = [f"New lab ready: {lab.id} · {lab.title}. Try it any time with `bin/learn session {lab.id}`."
+             for lab in labs if lab.needs and normalize_id(lab.needs) == normalize_id(ch.id)]
+    phase_main = [c for c in chapters if c.phase["dir"] == ch.phase["dir"] and c.kind != "lab"]
+    if ch.kind != "lab" and all(counts(c)["status"] in ("complete", "skipped") for c in phase_main):
+        open_labs = [c for c in chapters if c.phase["dir"] == ch.phase["dir"] and c.kind == "lab"
+                     and counts(c)["status"] not in ("complete", "skipped")]
+        if open_labs:
+            lines.append("That finishes the phase's chapters. Labs from this phase you haven't finished yet: "
+                         + ", ".join(c.id for c in open_labs) + ". See `bin/learn labs`.")
+    return lines
 
 
 def find_chapter(arg, chapters=None):
@@ -264,7 +357,9 @@ def cmd_start(args):
     print(f"  Log:       {rel(ch.log)}")
     later = "" if ch.work_dir.exists() else "  (created by your first `bin/learn ex`)"
     print(f"  Exercises: {rel(ch.work_dir)}/{later}")
-    print(f"  Reading:   {ch.ref}")
+    print(f"  {'Walkthrough' if ch.kind == 'lab' else 'Reading'}:   {ch.ref}")
+    if ch.kind == "lab" and ch.needs and counts(find_chapter(ch.needs))["status"] != "complete":
+        print(f"  Heads up: this lab builds on {ch.needs}, which isn't complete yet.")
 
 
 def cmd_ex(args):
@@ -397,9 +492,7 @@ def cmd_complete(args):
     ch = find_chapter(args.id) if args.id else current_chapter(args)
     text = ch.read()
     if getattr(args, "move_on", False) and get_field(text, "Status") == "complete":
-        chapters = load_chapters()
-        after = chapters[[c.id for c in chapters].index(ch.id) + 1:]
-        return next((c for c in after if counts(c)["status"] == "not-started"), None)
+        return next_chapter(ch, load_chapters())
     problems = []
     open_ex = [strip_checkbox(l) for _, done, l in checkbox_items(text, "exercises") if not done]
     open_parked = [strip_checkbox(l) for _, done, l in checkbox_items(text, "parked") if not done]
@@ -427,8 +520,9 @@ def cmd_complete(args):
     ch.write(text)
     print(f"🎉 {ch.id} · {ch.title} is complete.")
     chapters = load_chapters()
-    after = chapters[[c.id for c in chapters].index(ch.id) + 1:]
-    upcoming = next((c for c in after if counts(c)["status"] == "not-started"), None)
+    for line in lab_hints(ch, chapters):
+        print(line)
+    upcoming = next_chapter(ch, chapters)
     if getattr(args, "move_on", False):
         return upcoming
     if upcoming:
@@ -463,11 +557,17 @@ def cmd_status(args):
     current = CURRENT_FILE.read_text().strip() if CURRENT_FILE.exists() else ""
     marks = {"not-started": "·", "in-progress": "…", "complete": "✓", "skipped": "–"}
     phase_title = None
+    labs_heading_for = None
     totals = {s: 0 for s in STATUSES}
+    labs_done = labs_total = 0
     parked = questions = 0
     for ch in chapters:
         c = counts(ch)
-        totals[c["status"]] = totals.get(c["status"], 0) + 1
+        if ch.kind == "lab":
+            labs_total += 1
+            labs_done += c["status"] == "complete"
+        else:
+            totals[c["status"]] = totals.get(c["status"], 0) + 1
         parked += c["parked"]
         questions += c["questions"]
         if args.phase is not None and not ch.phase["dir"].startswith(f"phase-{args.phase}"):
@@ -475,6 +575,11 @@ def cmd_status(args):
         if ch.phase["title"] != phase_title:
             phase_title = ch.phase["title"]
             print(f"\n{phase_title}")
+        if ch.kind == "lab" and labs_heading_for != phase_title:
+            labs_heading_for = phase_title
+            print("   Labs (optional, real-world walkthroughs from your mentor)")
+        if ch.kind == "lab" and c["status"] == "not-started":
+            c["status"] = lab_readiness(ch)
         pointer = "▶" if ch.id == current else " "
         title = ch.title if len(ch.title) <= 38 else ch.title[:37] + "…"
         extras = []
@@ -484,11 +589,275 @@ def cmd_status(args):
             extras.append(f"parked {c['parked']}")
         if c["questions"]:
             extras.append(f"questions {c['questions']}")
-        print(f" {pointer} {marks.get(c['status'], '?')} {ch.id:<26} {title:<38} {c['status']:<12} {'  '.join(extras)}")
+        print(f" {pointer} {marks.get(c['status'], '·')} {ch.id:<26} {title:<38} {c['status']:<12} {'  '.join(extras)}")
     done = totals["complete"] + totals["skipped"]
     total = sum(totals.values())
+    labs = f" Labs: {labs_done}/{labs_total} done." if labs_total else ""
     print(f"\n{done}/{total} done ({totals['complete']} complete, {totals['skipped']} skipped), "
-          f"{totals['in-progress']} in progress. Open: {parked} parked, {questions} question(s).")
+          f"{totals['in-progress']} in progress. Open: {parked} parked, {questions} question(s).{labs}")
+
+
+def lab_readiness(lab):
+    """'ready' if the chapter the lab needs is done (or it needs none), else 'after <id>'."""
+    if not lab.needs:
+        return "ready"
+    return "ready" if counts(find_chapter(lab.needs))["status"] in ("complete", "skipped") else f"after {lab.needs}"
+
+
+def cmd_labs(args):
+    labs = [c for c in load_chapters() if c.kind == "lab"]
+    if not labs:
+        print("No labs yet.")
+        return
+    phase_title = None
+    for lab in labs:
+        if lab.phase["title"] != phase_title:
+            phase_title = lab.phase["title"]
+            print(f"\n{phase_title}")
+        status = counts(lab)["status"]
+        if status == "not-started":
+            status = lab_readiness(lab)
+        print(f"  {lab.id:<26} {lab.title[:40]:<40} {status}")
+        print(f"  {'':<26} {lab.ref}")
+    print("\nStart one with `bin/learn session <id>`. When it's done, `bin/learn next` takes you back to your chapter.")
+
+
+def current_phase(chapters):
+    """The phase of the current chapter, else of the furthest chapter started, else the first."""
+    phases = load_curriculum()["phases"]
+    current = CURRENT_FILE.read_text().strip() if CURRENT_FILE.exists() else ""
+    ch = find_chapter(current, chapters) if current else None
+    if ch is None:
+        started = [c for c in chapters if c.kind != "lab" and c.started]
+        ch = started[-1] if started else None
+    return next(i for i, p in enumerate(phases) if ch is None or p["dir"] == ch.phase["dir"])
+
+
+def readme_title(folder):
+    readme = folder / "README.md"
+    if readme.exists():
+        for line in readme.read_text(encoding="utf-8").splitlines():
+            if line.startswith("# "):
+                return line[2:].strip()
+    return folder.name.replace("-", " ").replace("_", " ").strip().capitalize()
+
+
+def cmd_lab_add(args):
+    """Mentor: copy a folder in as <phase dir>/labs/<name>/ and list it in curriculum.json."""
+    src = Path(args.folder).expanduser().resolve()
+    if not src.is_dir():
+        die(f"{args.folder} isn't a folder.")
+    data = load_curriculum()
+    chapters = load_chapters()
+    phases = data["phases"]
+    index = phase_index(phases, args.phase) if args.phase is not None else current_phase(chapters)
+    phase = phases[index]
+    folder = slugify(src.name)
+    lab_id = args.id or f"lab-{folder}"
+    dest = ROOT / phase["dir"] / "labs" / folder
+    labs = phase.setdefault("labs", [])
+    existing = next((e for e in labs if e["id"] == lab_id), None)
+    if existing and not args.update:
+        die(f"{lab_id} is already a lab. To copy in a newer version of the folder, add --update.")
+    if not existing and any(normalize_id(c.id) == normalize_id(lab_id) for c in chapters):
+        die(f"'{lab_id}' is already used in curriculum.json. Pick another with --id.")
+    if args.needs:
+        args.needs = find_chapter(args.needs, chapters).id
+
+    if src != dest:
+        if dest.exists() and not existing:
+            die(f"{rel(dest)} already exists. Pick another name with --id, or remove it first.")
+        if dest.resolve() in src.parents or src in dest.resolve().parents:
+            die("the folder can't be inside its own destination.")
+        import_lab_files(src, dest)
+    readme = dest / "README.md"
+    title = args.title or readme_title(dest)
+    if not readme.exists():
+        readme.write_text(f"# {title}\n\n"
+                          "<!-- The walkthrough the learner follows: the real-world problem, then the steps\n"
+                          "     and questions. Files in starter/ are copied into the learner's exercises/\n"
+                          "     when they start the lab. -->\n", encoding="utf-8")
+        print(f"note: the folder had no README.md, so {rel(readme)} was created. Write the walkthrough there.")
+
+    entry = existing or {"id": lab_id}
+    entry["title"] = title
+    entry["source"] = folder
+    if args.needs:
+        entry["needs"] = args.needs
+    if args.goal:
+        entry["goals"] = args.goal
+    if not existing:
+        labs.append(entry)
+    save_curriculum(data)
+
+    starter = dest / "starter"
+    starters = sorted(p.name for p in starter.iterdir()) if starter.is_dir() else []
+    print(f"✓ {'Updated' if existing else 'Added'} {lab_id} · {title} in {phase['title']}")
+    print(f"  Walkthrough:   {rel(readme)}")
+    print(f"  Starter files: {', '.join(starters) if starters else 'none'}")
+    if existing:
+        print("  Learners who already started it keep their copy; the update reaches new starts.")
+    print("  Run `bin/sync` to send it to the learner.")
+
+
+def import_lab_files(src, dest):
+    """README.md goes to dest/; everything else goes to dest/starter/ (a starter/ folder as is)."""
+    names = [p.name for p in src.iterdir()]
+    skip = set(JUNK(str(src), names))
+    dest.mkdir(parents=True, exist_ok=True)
+    for name in sorted(set(names) - skip):
+        item = src / name
+        if name == "README.md" and item.is_file():
+            target = dest / name
+        elif name == "starter" and item.is_dir():
+            target = dest / "starter"
+        else:
+            target = dest / "starter" / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if item.is_dir():
+            shutil.copytree(item, target, ignore=JUNK, dirs_exist_ok=True)
+        else:
+            shutil.copy2(item, target)
+
+
+def phase_index(phases, number):
+    index = next((i for i, p in enumerate(phases) if p["dir"].startswith(f"phase-{number}-")), None)
+    if index is None:
+        die(f"there's no phase {number}. Phases: {', '.join(p['dir'] for p in phases)}")
+    return index
+
+
+def find_lab_entry(data, wanted):
+    """(phase, entry) for a lab id. 'titanic' finds 'lab-titanic-survivors' if it's the only match."""
+    wanted = normalize_id(wanted)
+    found = [(phase, entry) for phase in data["phases"] for entry in phase.get("labs", [])]
+    exact = [f for f in found if normalize_id(f[1]["id"]) == wanted]
+    matches = exact or [f for f in found if wanted in normalize_id(f[1]["id"])]
+    if len(matches) == 1:
+        return matches[0]
+    if matches:
+        die(f"'{wanted}' matches several labs: {', '.join(e['id'] for _, e in matches)}")
+    die(f"no lab called '{wanted}'. See them with `bin/learn lab list`.")
+
+
+def cmd_lab_list(args):
+    """Mentor: every lab with its source, setup and the learner's progress."""
+    labs = [c for c in load_chapters() if c.kind == "lab"]
+    if not labs:
+        print("No labs yet. Add one with `bin/learn lab add <folder>`.")
+        return
+    phase_title = None
+    for lab in labs:
+        if lab.phase["title"] != phase_title:
+            phase_title = lab.phase["title"]
+            print(f"\n{phase_title}")
+        c = counts(lab)
+        status = c["status"] if c["status"] != "not-started" else f"not started ({lab_readiness(lab)})"
+        progress = [status]
+        if c["ex_total"]:
+            progress.append(f"ex {c['ex_done']}/{c['ex_total']}")
+        if c["questions"]:
+            progress.append(f"questions {c['questions']}")
+        if c["parked"]:
+            progress.append(f"parked {c['parked']}")
+        starters = sorted(p.name for p in lab.starter.iterdir()) if lab.starter.is_dir() else []
+        files = ", ".join(starters) if starters else "none"
+        if not (lab.dir / "README.md").exists():
+            files += "  (no README.md: the walkthrough is missing!)"
+        print(f"  {lab.id} · {lab.title}")
+        print(f"      learner:  {', '.join(progress)}")
+        print(f"      folder:   {rel(lab.dir)}/")
+        print(f"      starters: {files}")
+        if lab.needs or lab.goals:
+            print(f"      needs:    {lab.needs or '—'}    goals: {len(lab.goals) or 'default'}")
+
+
+def cmd_lab_remove(args):
+    """Mentor: take a lab out of curriculum.json and delete its folder (the learner's work stays)."""
+    data = load_curriculum()
+    phase, entry = find_lab_entry(data, args.id)
+    lab = Chapter(entry, phase, kind="lab")
+    if lab.started and not args.force:
+        die(f"the learner has started {lab.id} ({rel(lab.dir)}/). Removing it deletes your README.md and "
+            "starter/ but keeps their LOG.md and exercises/, and it disappears from `status` and `labs`. "
+            "Add --force to remove it anyway.")
+    phase["labs"].remove(entry)
+    if not phase["labs"]:
+        del phase["labs"]
+    save_curriculum(data)
+    labs_dir = (ROOT / phase["dir"] / "labs").resolve()
+    if lab.dir.is_dir() and lab.dir.resolve().parent == labs_dir:
+        if lab.started:
+            shutil.rmtree(lab.starter, ignore_errors=True)
+            if (lab.dir / "README.md").exists():
+                (lab.dir / "README.md").unlink()
+            removed = f" and deleted the walkthrough and starter/ from {rel(lab.dir)}/"
+        else:
+            shutil.rmtree(lab.dir)
+            removed = f" and deleted {rel(lab.dir)}/"
+            try:
+                labs_dir.rmdir()          # the phase's labs/ folder, if that was its last lab
+            except OSError:
+                pass
+    else:
+        removed = ""
+    print(f"✓ Removed {lab.id} from curriculum.json{removed}.")
+    if lab.started:
+        print(f"  The learner's LOG.md and exercises/ in {rel(lab.dir)}/ are untouched.")
+    print(f"  Changed your mind? If the lab was already committed, `git restore curriculum.json {rel(lab.dir)}` brings it back.")
+
+
+def cmd_lab_edit(args):
+    """Mentor: change a lab's title, needs, goals or phase without copying files again."""
+    data = load_curriculum()
+    phase, entry = find_lab_entry(data, args.id)
+    lab = Chapter(entry, phase, kind="lab")
+    changes = []
+    if args.title:
+        entry["title"] = args.title
+        changes.append(f"title → {args.title}")
+    if args.no_needs:
+        entry.pop("needs", None)
+        changes.append("needs → none")
+    elif args.needs:
+        entry["needs"] = find_chapter(args.needs).id
+        changes.append(f"needs → {entry['needs']}")
+    if args.no_goals:
+        entry.pop("goals", None)
+        changes.append("goals → the default ones")
+    elif args.goal:
+        entry["goals"] = args.goal
+        changes.append(f"goals → {len(args.goal)} goal(s)")
+    if args.phase is not None:
+        new_phase = data["phases"][phase_index(data["phases"], args.phase)]
+        if new_phase is not phase:
+            if lab.started:
+                die(f"the learner has started {lab.id}, and their work is in {rel(lab.dir)}/. "
+                    "Leave it in this phase, or remove it and add it again.")
+            dest = ROOT / new_phase["dir"] / "labs" / entry["source"]
+            if dest.exists():
+                die(f"{rel(dest)} already exists.")
+            if lab.dir.is_dir():
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                shutil.move(str(lab.dir), str(dest))
+                try:
+                    lab.dir.parent.rmdir()
+                except OSError:
+                    pass
+            phase["labs"].remove(entry)
+            if not phase["labs"]:
+                del phase["labs"]
+            new_phase.setdefault("labs", []).append(entry)
+            changes.append(f"phase → {new_phase['dir']} (folder moved to {rel(dest)}/)")
+    if not changes:
+        die("nothing to change. Pass --title, --needs, --no-needs, --goal, --no-goals or --phase.")
+    save_curriculum(data)
+    print(f"✓ Updated {entry['id']}:")
+    for change in changes:
+        print(f"  {change}")
+    if lab.started and (args.title or args.goal or args.no_goals):
+        print(f"  The learner already started it, so their {rel(lab.log)} keeps the old title and goals.")
+    print("  Run `bin/sync` to send it to the learner.")
 
 
 # ---------------------------------------------------------------- CLI
@@ -541,6 +910,46 @@ def main():
     p = add("skip", cmd_skip, "mark a chapter skipped, e.g. a project track you didn't pick")
     p.add_argument("id")
     p.add_argument("reason", nargs="*")
+    add("labs", cmd_labs, "list the labs: optional real-world walkthroughs, by phase")
+    # Mentor-only, so it's left out of `-h` (a subcommand without help= isn't listed). See MENTOR.md.
+    lab = sub.add_parser("lab", description="mentor: manage labs (see `lab <command> -h`)")
+    lab_sub = lab.add_subparsers(dest="lab_command", metavar="<lab command>")
+    lab.set_defaults(func=lambda a: lab.print_help())
+    p = lab_sub.add_parser("add", help="copy a folder in as a lab of the current phase",
+                           description="Copy a folder in as <phase>/labs/<name>/ and list it in curriculum.json. "
+                                       "Its README.md is the walkthrough; every other file goes into starter/, "
+                                       "which the learner gets a copy of in exercises/ when they start the lab. "
+                                       "The phase is the learner's current one unless you pass --phase.")
+    p.set_defaults(func=cmd_lab_add)
+    p.add_argument("folder", help="the folder to add, from anywhere on disk")
+    p.add_argument("--phase", type=int, help="phase number (default: the learner's current phase)")
+    p.add_argument("--title", help="default: the README's first # heading, else the folder name")
+    p.add_argument("--needs", help="chapter the lab builds on; the learner is told when it's ready")
+    p.add_argument("--goal", action="append", help="a goal for the log's checklist (repeat for more)")
+    p.add_argument("--id", help="lab id (default: lab-<folder name>)")
+    p.add_argument("--update", action="store_true", help="copy in a newer version of a lab that's already added")
+    p = lab_sub.add_parser("list", help="every lab with its source, setup and the learner's progress",
+                           description="Every lab with its source folder, starter files, needs, goals "
+                                       "and the learner's progress.")
+    p.set_defaults(func=cmd_lab_list)
+    p = lab_sub.add_parser("remove", help="take a lab out and delete its folder",
+                           description="Take a lab out of curriculum.json and delete its folder. If the "
+                                       "learner started it, only README.md and starter/ are deleted; their "
+                                       "LOG.md and exercises/ are never touched.")
+    p.set_defaults(func=cmd_lab_remove)
+    p.add_argument("id")
+    p.add_argument("--force", action="store_true", help="remove it even though the learner started it")
+    p = lab_sub.add_parser("edit", help="change a lab's title, needs, goals or phase",
+                           description="Change a lab's details in curriculum.json without copying its files "
+                                       "again. Use `lab add <folder> --update` to replace the files.")
+    p.set_defaults(func=cmd_lab_edit)
+    p.add_argument("id")
+    p.add_argument("--title")
+    p.add_argument("--needs", help="chapter the lab builds on")
+    p.add_argument("--no-needs", action="store_true", help="the lab doesn't depend on a chapter")
+    p.add_argument("--goal", action="append", help="replaces the goals (repeat for more)")
+    p.add_argument("--no-goals", action="store_true", help="go back to the default goals")
+    p.add_argument("--phase", type=int, help="move it to another phase (only before the learner starts it)")
 
     args = parser.parse_args()
     if not args.command:

@@ -108,6 +108,8 @@ Phase 0 · Foundations (sprint: Tue Nov 10 – Sat Nov 14, 8h/day)
 
 `l complete` closes a chapter without moving on, for example to finish a side log.
 
+**Labs** are optional real-world walkthroughs your mentor adds to a phase, such as analysing a real dataset. `l labs` lists them and says which ones you're ready for. Each lab is a folder in its phase, such as `phase-0-foundations/labs/titanic-survivors/`. Start one with `l session <lab id>`: you get a log and an `exercises/` folder with a copy of the starter files, next to the walkthrough. Then work as usual, and `l next` takes you back to your chapter.
+
 Phase 1 has three project tracks and you pick two. Mark each chapter of the track you skip, for example `l skip pcc-12 "picked data and web tracks"`.
 
 ## Chapter logs
@@ -162,6 +164,7 @@ Commands that change a log use your current chapter unless you add `-c <id>`. Id
 | `l next [--force]` | Close the current chapter, after checking for loose ends, and move to the next one |
 | `l complete [id] [--force]` | Close a chapter without moving on |
 | `l skip <id> [reason]` | Skip a chapter, such as a project track you didn't pick |
+| `l labs` | List the labs, by phase, and which ones you're ready for |
 | `s [message]` | Get your mentor's feedback and submit your progress |
 | `s --keep-mine` | Only after a conflict: keep your version of the clashing lines |
 | `bin/install-aliases [--learn x --sync y] [--remove]` | Add or remove the `l` and `s` shortcuts |
@@ -174,13 +177,19 @@ pythonic/
 ├── intro.html  career-roadmap.html
 ├── curriculum.json            every phase and chapter, in order
 ├── bin/                       learn, sync, install-aliases
-├── templates/                 LOG.md (new chapter logs) and exercise.py (new exercise files)
+├── templates/                 LOG.md (chapters), LOG.lab.md (labs), exercise.py (exercise files)
 └── phase-0-foundations/       appears with your first `l session <id>`
     ├── pcc-00-setup-and-git/
     │   ├── LOG.md
     │   └── exercises/         appears with your first `l ex`
-    └── proj-mini-mini-project/
-        ├── LOG.md
-        ├── src/               appears with your first `l ex`
-        └── tests/             make this yourself when you write tests
+    ├── proj-mini-mini-project/
+    │   ├── LOG.md
+    │   ├── src/               appears with your first `l ex`
+    │   └── tests/             make this yourself when you write tests
+    └── labs/                  your mentor's labs for this phase
+        └── titanic-survivors/
+            ├── README.md      the walkthrough (your mentor's, don't edit)
+            ├── starter/       the starter files (your mentor's, don't edit)
+            ├── LOG.md         appears when you start the lab
+            └── exercises/     appears when you start the lab, with a copy of starter/
 ```
