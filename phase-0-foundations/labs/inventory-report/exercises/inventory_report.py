@@ -35,7 +35,15 @@ RAW_INVENTORY = [
     ("Extension Cord", 9, 4, 12, 15.40),
     ("wood glue", 0, 5, 15, 6.80),
 ]
+x=0
+print(id(x))
+for item in RAW_INVENTORY:
+    x= x+ len(item)
+print(id(x))
+print(x)
 
+total = sum([len(item) for item in RAW_INVENTORY])
+print(total)
 # Create a clean inventory list.Remove extra spaces and make every name lowercaseƒ
 inventory = [
     (name.strip().lower(), on_hand, reorder_point, restock_level, unit_cost)
