@@ -3,9 +3,9 @@
 **Lab:** [Inventory Restock Report: Commenting Exercise](README.md), a real-world walkthrough from your mentor
 **Phase:** Phase 0 · Foundations (sprint: Tue Nov 10 – Sat Nov 14, 8h/day)
 **Needs:** —
-**Status:** in-progress
+**Status:** complete
 **Started:** 2026-11-12
-**Completed:** —
+**Completed:** 2026-11-13
 
 > Read the walkthrough first, then work in [exercises/](exercises/): your copy of the starter files is already there. Change it as much as you like; your mentor's originals in `starter/` stay untouched. For the daily routine, see [The daily loop](../../../README.md#the-daily-loop) in the main README.
 
