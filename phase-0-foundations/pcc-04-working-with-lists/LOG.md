@@ -31,7 +31,8 @@ _None yet._
 
 ## Questions for mentor
 <!-- Tried for 30 minutes first? Say what you tried. `l ask "..."` -->
-- [ ] (2026-11-11) 4-10
+- [x] (2026-11-11) 4-10 — answered 2026-11-12
+  - **Answer:** see below
 - [x] (2026-11-11) what is the difference friend_pizzas = pizzas[:] — answered 2026-11-11
   - **Answer:** = pizzas does shallow copy, pizzas[:] creates a deep copy. the shallow copy does not create a new list it just gives a new name to the same list
 friend_pizzas = pizzas
