@@ -100,6 +100,65 @@ New value or change the original?
 | `name.title()` | str method | No (strings can't be changed) | A new string |
 
 
+### Augmented Assignment Operator
+
+Time for a little peek into the future (pcc-07)
+
+```python
+
+item_prices = [11.23, 23.59, 44.99]
+
+for price in item_prices:
+    # total = total + price
+    # can be written as 
+
+    total += price
+
+print(total)   # 79.81
+```
+
+`+=` is an **augmented assignment operator**. This particular one is also
+called the **addition assignment** or **in-place addition** operator.
+
+
+#### Other operators
+
+| Operator | Same as |
+|---|---|
+| `x += 1` | `x = x + 1` |
+| `x -= 1` | `x = x - 1` |
+| `x *= 2` | `x = x * 2` |
+| `x /= 2` | `x = x / 2` |
+| `x //= 2` | `x = x // 2` |
+| `x %= 2` | `x = x % 2` |
+| `x **= 2` | `x = x ** 2` |
+
+#### Mutable vs immutable
+
+`+=` behaves differently depending on the type:
+
+- **Immutable values (int, str, tuple):** Python creates a **new value** and
+  points the name at it.
+- **Mutable values (list):** Python changes the **same list in place**.
+
+```python
+a = [1, 2]
+b = a
+print (id(a), id(b))    # same value 
+
+a += [3]
+print(b)     # [1, 2, 3]: b sees the change, because it's the same list
+
+print (id(a), id(b))    # also same value, a never drifted from its original box (== b)
+
+x = "ab"
+y = x
+x += "c"
+print(y)     # 'ab': x now points to a new string, y still has the old one
+```
+
+
+
 ## Example
 <!-- A small, complete example to type out and run. -->
 
@@ -120,6 +179,8 @@ name.title()          # returns 'Hammer', but name is still 'hammer'
 name = name.title()   # store the result to keep it
 
 ```
+
+
 
 ## Common mistakes
 
