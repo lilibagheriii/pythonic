@@ -20,7 +20,8 @@
         {"id": "proj-mini", "kind": "project", "title": "Mini Project", "ref": "Saturday Nov 14: build ~6h, demo 1h, retro and Phase 1 planning 1h", "goals": ["Student picks and scopes it (e.g. a command-line tracker that saves to JSON)", "Has tests that pass", "README explains how to run it", "Demoed to mentor and signed off", "Phase 1 project tracks chosen and first weekly goals written"]}
       ],
       "labs": [
-        {"id": "lab-inventory-report", "title": "Inventory Restock Report: Commenting Exercise", "source": "inventory-report"}
+        {"id": "lab-inventory-report", "title": "Inventory Restock Report: Commenting Exercise", "source": "inventory-report"},
+        {"id": "lab-pcc-lab-readability", "title": "Lab: Readability Checker", "source": "pcc-lab-readability"}
       ]
     },
     {
