@@ -9,12 +9,19 @@ Reads a raw inventory list, cleans it, then prints a report showing:
   - the items that hold the most stock value
 """
 STORE_NAME = "corner hardware co."
+STORE_NAME = STORE_NAME.title()
+
 RESTOCK_BUDGET = 1_500.00   # Maximum amount we are allowed to spend on one order
 BUDGET_WARNING_RATIO = 0.8  # Warn when the order uses 80% of the budget.
 TOP_N = 3   # How many of the highest-value products to show at the end of the report.
+print(type(STORE_NAME))
+print(type(RESTOCK_BUDGET))
+print(type(BUDGET_WARNING_RATIO))
+print(type(TOP_N))
 
 # Products that are no longer sold and should not be reordered.
 DISCONTINUED = ("paint roller", "wood glue")
+print(type(DISCONTINUED[0]))
 
 # Each product is stored as a tuple containing:
 # (name, current stock, reorder point, restock level, unit cost)
@@ -28,6 +35,7 @@ RAW_INVENTORY = [
     ("Extension Cord", 9, 4, 12, 15.40),
     ("wood glue", 0, 5, 15, 6.80),
 ]
+
 # Create a clean inventory list.Remove extra spaces and make every name lowercaseƒ
 inventory = [
     (name.strip().lower(), on_hand, reorder_point, restock_level, unit_cost)
