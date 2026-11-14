@@ -38,7 +38,7 @@ RAW_INVENTORY = [
 x=0
 print(id(x))
 for item in RAW_INVENTORY:
-    x= x+ len(item)
+    x += len(item)
 print(id(x))
 print(x)
 
