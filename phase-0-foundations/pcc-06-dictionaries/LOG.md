@@ -15,7 +15,7 @@
 
 ## Exercises
 <!-- Added by `l ex`. Tick off with `l done <id>`. -->
-_None yet._
+- [ ] 6-1 → [ex_6_1.py](exercises/ex_6_1.py)
 
 ## Session log
 <!-- `l session` adds a dated entry. Fill it in before you stop for the day. -->
